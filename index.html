@@ -35,25 +35,56 @@
     </style>
 </head>
 <body>
-    <ul id="messages"></ul>
-    <form id="messageForm" action="">
-        <input id="messageInput" autocomplete="off" /><button>Send</button>
-    </form>
+    <div id="usernamePrompt">
+        <label for="usernameInput">Enter your username:</label>
+        <input type="text" id="usernameInput" autocomplete="off" />
+        <button id="usernameButton">Set Username</button>
+    </div>
+
+    <div id="chatApp" style="display: none;">
+        <ul id="messages"></ul>
+        <form id="messageForm" action="">
+            <input id="messageInput" autocomplete="off" /><button>Send</button>
+        </form>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
         var form = document.getElementById('messageForm');
         var input = document.getElementById('messageInput');
         var messages = document.getElementById('messages');
+        var username;
 
+        // Function to handle setting the username
+        function setUsername() {
+            var usernameInput = document.getElementById('usernameInput').value.trim();
+            if (usernameInput !== '') {
+                username = usernameInput;
+                document.getElementById('usernamePrompt').style.display = 'none';
+                document.getElementById('chatApp').style.display = 'block';
+            } else {
+                alert('Please enter a valid username.');
+            }
+        }
+
+        // Event listener for username button
+        document.getElementById('usernameButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            setUsername();
+        });
+
+        // Event listener for message form submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             if (input.value) {
-                socket.emit('chat message', input.value);
+                var message = username + ': ' + input.value;
+                socket.emit('chat message', message);
                 input.value = '';
             }
         });
 
+        // Event listener for receiving messages
         socket.on('chat message', function(msg) {
             var item = document.createElement('li');
             item.textContent = msg;
@@ -63,4 +94,3 @@
     </script>
 </body>
 </html>
-
