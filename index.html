@@ -44,11 +44,6 @@
         <button>Send</button>
     </form>
     <script
-        authed="location.reload()"
-        src="https://auth.util.repl.co/script.js"
-      ></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
         var socket = io();
         var form = document.getElementById('messageForm');
         var nameInput = document.getElementById('nameInput');
@@ -58,17 +53,24 @@
 
         // Wait for the authentication script to finish
         setTimeout(function() {
-            // Get the username from the Replit headers
-            username = document.querySelector('meta[name="replit-user-name"]').content; // Store in the global variable
+          // Get the username from the Replit headers
+          username = document.querySelector('meta[name="replit-user-name"]').content; // Store in the global variable
 
-            // Pre-fill the name input with the username
-            nameInput.value = username; 
+          // Prompt for username
+          var userPrompt = prompt("Enter your desired username:", username);
+
+          if (userPrompt !== null && userPrompt !== "") {
+            username = userPrompt; // Update the username if a valid input is provided
+          }
+
+          // Pre-fill the name input with the username
+          nameInput.value = username; 
         }, 100); // Adjust the timeout value if needed
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           if (messageInput.value) {
-            var msg = nameInput.value + ': ' + messageInput.value; // Get username from input field
+            var msg = "Human: " + messageInput.value; // Include "Human:" before the message
             socket.emit('chat message', msg);
             messageInput.value = '';
           }
