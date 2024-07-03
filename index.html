@@ -73,25 +73,82 @@
             var input = document.getElementById('messageInput');
             var messages = document.getElementById('messages');
 
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (input.value) {
-                    var message = username + ': ' + input.value;
-                    socket.emit('chat message', message);
-                    input.value = '';
-                }
-            });
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Chat App</title>
+                <style>
+                    /* Add some basic styling */
+                    #messages {
+                        list-style-type: none;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    #messages li {
+                        padding: 8px;
+                        margin-bottom: 10px;
+                        background-color: #f4f4f4;
+                        border: 1px solid #ddd;
+                    }
+                    #messageForm {
+                        display: none; /* Hide message form initially */
+                        margin-top: 10px;
+                    }
+                    #messageForm input {
+                        flex: 1;
+                        padding: 10px;
+                        font-size: 16px;
+                    }
+                    #messageForm button {
+                        padding: 10px;
+                        font-size: 16px;
+                        background-color: #4CAF50;
+                        color: white;
+                        border: none;
+                        cursor: pointer;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="usernameForm">
+                    <label for="usernameInput">Enter your username:</label>
+                    <input id="usernameInput" type="text" />
+                    <button id="usernameSubmit">Submit</button>
+                </div>
+                <ul id="messages"></ul>
+                <form id="messageForm" action="">
+                    <input id="messageInput" autocomplete="off" /><button>Send</button>
+                </form>
+                <script src="/socket.io/socket.io.js"></script>
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(document).ready(function() {
+                        var socket = io();
 
-            socket.on('chat message', function(msg) {
-                var item = document.createElement('li');
-                item.textContent = msg;
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-        }
+                        $('#usernameForm').submit(function(e) {
+                            e.preventDefault();
+                            var username = $('#usernameInput').val().trim();
+                            if (username) {
+                                socket.emit('set username', username);
+                                $('#usernameForm').hide();
+                                $('#messageForm').show();
+                            }
+                        });
 
-        // Call the setUsername function on page load
-        setUsername();
-    </script>
-</body>
-</html>
+                        $('#messageForm').submit(function(e) {
+                            e.preventDefault();
+                            var message = $('#messageInput').val().trim();
+                            if (message) {
+                                socket.emit('chat message', message);
+                                $('#messageInput').val('');
+                            }
+                        });
+
+                        socket.on('chat message', function(msg) {
+                            $('#messages').append($('<li>').text(msg));
+                            window.scrollTo(0, document.body.scrollHeight);
+                        });
+                    });
+                </script>
+            </body>
+            </html>

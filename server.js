@@ -20,6 +20,7 @@ io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
         // Ensure username is set before sending messages
         if (socket.username) {
+            // Broadcast message with username prefix
             io.emit('chat message', `${socket.username}: ${msg}`);
         }
     });
