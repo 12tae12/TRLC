@@ -35,26 +35,71 @@
     </style>
 </head>
 <body>
-    <ul id="messages"></ul>
-    <form id="messageForm" action="">
-        <input id="nameInput" placeholder="Your Name" autocomplete="off" />
-        <input id="messageInput" placeholder="Message" autocomplete="off" />
-        <button>Send</button>
-    </form>
+    <div class="container">
+        <div class="header">
+            Chat App
+        </div>
+        <ul class="chat-messages" id="messages"></ul>
+        <div class="message-input">
+            <input type="text" id="messageInput" autocomplete="off" placeholder="Type your message...">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <!-- Username Modal -->
+    <div class="username-modal" id="usernameModal">
+        <div class="username-modal-content">
+            <h2>Welcome to the Chat App!</h2>
+            <p>Please enter your username:</p>
+            <input type="text" id="usernameInput" placeholder="Enter your username...">
+            <button id="usernameSubmit">Submit</button>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        var form = document.getElementById('messageForm');
-        var nameInput = document.getElementById('nameInput');
-        var messageInput = document.getElementById('messageInput');
+        var usernameModal = document.getElementById('usernameModal');
+        var usernameInput = document.getElementById('usernameInput');
+        var usernameSubmit = document.getElementById('usernameSubmit');
         var messages = document.getElementById('messages');
+        var messageInput = document.getElementById('messageInput');
+        var sendButton = document.getElementById('sendButton');
+        var username;
 
-        form.addEventListener('submit', function(e) {
+        // Show username input modal on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            usernameModal.style.display = 'flex';
+        });
+
+        // Handle username submission
+        usernameSubmit.addEventListener('click', function(e) {
             e.preventDefault();
-            if (nameInput.value && messageInput.value) {
-                var msg = nameInput.value + ': ' + messageInput.value;
-                socket.emit('chat message', msg);
+            username = usernameInput.value.trim();
+            if (username) {
+                usernameModal.style.display = 'none';
+                messageInput.focus();
+            }
+        });
+
+        // Handle message submission
+        sendButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            var message = messageInput.value.trim();
+            if (message) {
+                socket.emit('chat message', '[' + username + ']: ' + message);
                 messageInput.value = '';
+                messageInput.focus();
             }
         });
 
