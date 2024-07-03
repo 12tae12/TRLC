@@ -36,10 +36,7 @@
 </head>
 <body>
     <div>
-      <script
-        authed="location.reload()"
-        src="https://auth.util.repl.co/script.js"
-      ></script>
+
     </div>
     <ul id="messages"></ul>
     <form id="messageForm" action="">
@@ -47,6 +44,10 @@
         <input id="messageInput" placeholder="Message" autocomplete="off" />
         <button>Send</button>
     </form>
+    <script
+        authed="location.reload()"
+        src="https://auth.util.repl.co/script.js"
+      ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
@@ -62,13 +63,13 @@
 
             // Pre-fill the name input with the username
             nameInput.value = username; 
-            nameInput.disabled = true;  // Prevent user from changing the name
+            // nameInput.disabled = true;  // Remove this line to enable editing
         }, 100); // Adjust the timeout value if needed
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           if (messageInput.value) {
-            var msg = username + ': ' + messageInput.value;
+            var msg = nameInput.value + ': ' + messageInput.value; // Get username from input field
             socket.emit('chat message', msg);
             messageInput.value = '';
           }
