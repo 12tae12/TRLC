@@ -8,42 +8,28 @@ const io = socketIo(server);
 
 app.use(express.static('public'));
 
-const users = {}; // Store usernames and their sockets
-
 io.on('connection', (socket) => {
     console.log('a user connected');
 
-    socket.on('join', (username) => { // New event for joining
-        users[socket.id] = username; 
-        socket.broadcast.emit('user joined', username); // Broadcast to everyone
-        socket.emit('user joined', username);
+    // Listen for username setting
+    socket.on('set username', (username) => {
+        socket.username = username;
     });
 
+    // Listen for chat messages
     socket.on('chat message', (msg) => {
-        const username = users[socket.id];
-        if (username) {
-            io.emit('chat message', { user: username, message: msg }); // Send with username
+        // Ensure username is set before sending messages
+        if (socket.username) {
+            io.emit('chat message', `${socket.username}: ${msg}`);
         }
     });
 
     socket.on('disconnect', () => {
-        const username = users[socket.id];
-        if (username) {
-            delete users[socket.id];
-            socket.broadcast.emit('user left', username); 
-            console.log('user disconnected');
-        }
+        console.log('user disconnected');
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`listening on *:${PORT}`);
-});function sendMessage() {
-    var message = messageInput.value.trim();
-    if (message) {
-        socket.emit('chat message', message); // Send only the message
-        messageInput.value = '';
-        messageInput.focus();
-    }
-}
+});
