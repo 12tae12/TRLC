@@ -55,15 +55,15 @@
         var nameInput = document.getElementById('nameInput');
         var messageInput = document.getElementById('messageInput');
         var messages = document.getElementById('messages');
+        var username; // Declare the username variable globally
 
         // Wait for the authentication script to finish
         setTimeout(function() {
             // Get the username from the Replit headers
-            const username = document.querySelector('meta[name="replit-user-name"]').content;
+            username = document.querySelector('meta[name="replit-user-name"]').content; // Store in the global variable
 
             // Pre-fill the name input with the username
             nameInput.value = username; 
-            // nameInput.disabled = true;  // Remove this line to enable editing
         }, 100); // Adjust the timeout value if needed
 
         form.addEventListener('submit', function(e) {
