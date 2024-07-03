@@ -35,15 +35,13 @@
     </style>
 </head>
 <body>
-    <div>
-
-    </div>
     <ul id="messages"></ul>
     <form id="messageForm" action="">
         <input id="nameInput" placeholder="Enter your username" autocomplete="off" /> <input id="messageInput" placeholder="Message" autocomplete="off" />
         <button>Send</button>
     </form>
-    <script
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
         var socket = io();
         var form = document.getElementById('messageForm');
         var nameInput = document.getElementById('nameInput');
@@ -53,14 +51,13 @@
 
         // Wait for the authentication script to finish
         setTimeout(function() {
-          // Get the username from the Replit headers
-          username = document.querySelector('meta[name="replit-user-name"]').content; // Store in the global variable
-
           // Prompt for username
-          var userPrompt = prompt("Enter your desired username:", username);
+          var userPrompt = prompt("Enter your desired username:");
 
           if (userPrompt !== null && userPrompt !== "") {
             username = userPrompt; // Update the username if a valid input is provided
+          } else {
+            username = "Anonymous"; // Default username if prompt is cancelled or empty
           }
 
           // Pre-fill the name input with the username
@@ -70,7 +67,7 @@
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           if (messageInput.value) {
-            var msg = "Human: " + messageInput.value; // Include "Human:" before the message
+            var msg = username + ": " + messageInput.value; // Include username before the message
             socket.emit('chat message', msg);
             messageInput.value = '';
           }
