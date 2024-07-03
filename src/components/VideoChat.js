@@ -20,7 +20,7 @@ const VideoChat = () => {
 
     newPeer.on('signal', data => {
       // Send signal data to Cloudflare Worker
-      fetch(`https://your-worker-subdomain.your-workers.dev/signal?id=${userId}`, {
+      fetch(`https://your-worker-project.greenstamp25.workers.dev/signal?id=${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
