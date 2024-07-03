@@ -55,12 +55,15 @@
         var messageInput = document.getElementById('messageInput');
         var messages = document.getElementById('messages');
 
-        // Get the username from the Replit headers
-        const username = document.querySelector('meta[name="replit-user-name"]').content;
+        // Wait for the authentication script to finish
+        setTimeout(function() {
+            // Get the username from the Replit headers
+            const username = document.querySelector('meta[name="replit-user-name"]').content;
 
-        // Pre-fill the name input with the username
-        nameInput.value = username; 
-        nameInput.disabled = true;  // Prevent user from changing the name
+            // Pre-fill the name input with the username
+            nameInput.value = username; 
+            nameInput.disabled = true;  // Prevent user from changing the name
+        }, 100); // Adjust the timeout value if needed
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
