@@ -2,7 +2,7 @@ name = "your-worker-project"
 type = "webpack"
 account_id = "973c051922a131981d76230cd826d8a4"
 
-zone_id = ''
+
 usage_model = 'bundled'
 compatibility_flags = []
 workers_dev = true
