@@ -23,6 +23,12 @@
             overflow-y: scroll;
             flex: 1;
             padding-bottom: 120px; /* Increased space for the input forms */
+            margin-left: 250px; /* Adjust the margin to accommodate the sidebar */
+            transition: margin-left 0.3s ease;
+        }
+
+        #messages.open {
+            margin-left: 0;
         }
 
         #messages li {
@@ -99,9 +105,97 @@
             display: flex;
             gap: 10px;
         }
+
+        #sidebar {
+            width: 250px;
+            background-color: #36393f;
+            color: #dcddde;
+            height: 100%;
+            position: fixed;
+            left: -250px;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+        }
+
+        #sidebarHeader {
+            background-color: #40444b;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #sidebarHeader h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        #toggleSidebar {
+            background-color: transparent;
+            border: none;
+            color: #dcddde;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #channelList {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        #channelList li {
+            padding: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        #sidebarFooter {
+            margin-top: auto; /* Push the footer to the bottom */
+            padding: 10px;
+        }
+
+        .sidebarButton {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .sidebarButton:hover {
+            background-color: #4752c4;
+        }
+
+        .fa-comment-alt, .fa-video {
+            margin-right: 5px;
+        }
+
     </style>
 </head>
 <body>
+    <div id="sidebar">
+        <div id="sidebarHeader">
+            <h2>Channels</h2>
+            <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+        </div>
+        <ul id="channelList">
+            <!-- Add your channels or categories here -->
+            <li># General</li>
+            <li># Random</li>
+        </ul>
+        <div id="sidebarFooter">
+            <button class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</button>
+            <button class="sidebarButton"><i class="fas fa-video"></i> Video Chat</button>
+        </div>
+    </div>
+
     <ul id="messages"></ul>
     <div id="inputContainer">
         <form id="messageForm" action="">
@@ -125,6 +219,7 @@
         var fileButton = document.getElementById('fileButton');
         var messages = document.getElementById('messages');
         var username; // Declare the username variable globally
+        var lastMessageUsername; // Variable to track the last username
 
         // Wait for the authentication script to finish
         setTimeout(function() {
@@ -144,7 +239,11 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             if (messageInput.value) {
-                var msg = username + ": " + messageInput.value; // Include username before the message
+                var msg = messageInput.value.trim();
+                if (lastMessageUsername !== username) {
+                    lastMessageUsername = username;
+                    msg = username + ": " + msg; // Include username before the message
+                }
                 socket.emit('chat message', msg);
                 messageInput.value = '';
             }
@@ -174,7 +273,11 @@
         // Handle incoming chat messages
         socket.on('chat message', function(msg) {
             var item = document.createElement('li');
-            item.innerHTML = '<span class="username">' + username + ':</span> ' + msg;
+            if (msg.startsWith(username + ":")) {
+                item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
+            } else {
+                item.textContent = msg;
+            }
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
@@ -184,7 +287,11 @@
             history.forEach(function(msg) {
                 var item = document.createElement('li');
                 if (typeof msg === 'string') {
-                    item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
+                    if (msg.startsWith(username + ":")) {
+                        item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
+                    } else {
+                        item.textContent = msg;
+                    }
                 } else if (msg.mimetype.startsWith('image/')) {
                     var img = document.createElement('img');
                     img.src = '/uploads/' + msg.filename;
@@ -225,6 +332,12 @@
             }
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        // Toggle sidebar functionality
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('messages').classList.toggle('open');
         });
     </script>
 </body>
