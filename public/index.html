@@ -32,7 +32,7 @@
             </form>
             <form id="fileForm" enctype="multipart/form-data">
                 <input type="file" id="fileInput" name="file">
-                <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
+                <button type="submit" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
             </form>
         </div>
     </div>
@@ -50,11 +50,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toggleSidebar = document.getElementById('toggleSidebar');
-            const textChatButton = document.getElementById('textChatButton');
-            const videoChatButton = document.getElementById('videoChatButton');
-            const videoChatContainer = document.getElementById('videoChatContainer');
-
             const socket = io();
             const messagesList = document.getElementById('messagesList');
             const messageForm = document.getElementById('messageForm');
@@ -63,6 +58,8 @@
             const fileForm = document.getElementById('fileForm');
             const fileInput = document.getElementById('fileInput');
             const fileButton = document.getElementById('fileButton');
+            const videoChatButton = document.getElementById('videoChatButton');
+            const videoChatContainer = document.getElementById('videoChatContainer');
             const localVideo = document.getElementById('localVideo');
             const remoteVideosContainer = document.getElementById('remoteVideos');
 
@@ -82,33 +79,92 @@
             // Pre-fill the name input with the username
             nameInput.value = username;
 
-            // Toggle sidebar visibility
-            toggleSidebar.addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('active');
+            // Handle form submit for text messages
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (messageInput.value.trim()) {
+                    const msg = messageInput.value.trim();
+                    const formattedMsg = username + ': ' + msg;
+                    socket.emit('chat message', formattedMsg);
+                    messageInput.value = '';
+                }
             });
 
-            // Handle text chat button click
-            textChatButton.addEventListener('click', function() {
-                if (videoChatContainer.style.display !== 'none') {
-                    toggleVideoChat();
+            // Handle form submit for file uploads
+            fileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const file = fileInput.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('username', username);
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data);
+                        fileInput.value = ''; // Clear the file input
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                    });
                 }
-                document.getElementById('sidebar').classList.remove('active');
+            });
+
+            // Handle incoming chat messages
+            socket.on('chat message', function(msg) {
+                const item = document.createElement('li');
+                item.textContent = msg;
+                messagesList.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            // Handle incoming file uploads
+            socket.on('file upload', function(fileInfo) {
+                const item = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = `/uploads/${fileInfo.filename}`;
+                link.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
+                link.target = '_blank';
+                item.appendChild(link);
+                messagesList.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            // Handle incoming chat history
+            socket.on('chat history', function(history) {
+                history.forEach(function(msg) {
+                    if (typeof msg === 'string') {
+                        const item = document.createElement('li');
+                        item.textContent = msg;
+                        messagesList.appendChild(item);
+                    } else if (typeof msg === 'object') {
+                        const item = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = `/uploads/${msg.filename}`;
+                        link.textContent = `${msg.username} uploaded: ${msg.originalname}`;
+                        link.target = '_blank';
+                        item.appendChild(link);
+                        messagesList.appendChild(item);
+                    }
+                });
+                window.scrollTo(0, document.body.scrollHeight);
             });
 
             // Handle video chat button click
             videoChatButton.addEventListener('click', function() {
-                if (videoChatContainer.style.display === 'none') {
-                    videoChatContainer.style.display = 'block';
-                    startVideoChat();
-                } else {
-                    toggleVideoChat();
-                }
-                document.getElementById('sidebar').classList.remove('active');
+                toggleVideoChat();
             });
 
             // Function to toggle video chat container visibility
             function toggleVideoChat() {
-                if (videoChatContainer.style.display === 'block') {
+                if (videoChatContainer.style.display === 'none') {
+                    videoChatContainer.style.display = 'block';
+                    startVideoChat();
+                } else {
                     videoChatContainer.style.display = 'none';
                     stopVideoChat();
                 }
@@ -203,58 +259,8 @@
                     console.error('Error adding ice candidate:', error);
                 }
             });
-
-            // Handle form submit for text messages
-            messageForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (messageInput.value.trim()) {
-                    const msg = messageInput.value.trim();
-                    const formattedMsg = username + ': ' + msg;
-                    socket.emit('chat message', formattedMsg);
-                    messageInput.value = '';
-                }
-            });
-
-            // Handle form submit for file uploads
-            fileButton.addEventListener('click', function() {
-                const file = fileInput.files[0];
-                if (file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('username', username);
-
-                    fetch('/upload', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log(data);
-                    })
-                    .catch(error => {
-                        console.error('Error uploading file:', error);
-                    });
-                }
-            });
-
-            // Handle incoming chat messages
-            socket.on('chat message', function(msg) {
-                const item = document.createElement('li');
-                item.textContent = msg;
-                messagesList.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-
-            // Handle incoming chat history
-            socket.on('chat history', function(history) {
-                history.forEach(function(msg) {
-                    const item = document.createElement('li');
-                    item.textContent = msg;
-                    messagesList.appendChild(item);
-                });
-                window.scrollTo(0, document.body.scrollHeight);
-            });
         });
+
     </script>
 </body>
 </html>
