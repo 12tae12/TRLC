@@ -53,7 +53,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const socket = io();
+            const messages = document.getElementById('messages');
             const messagesList = document.getElementById('messagesList');
+            const inputContainer = document.getElementById('inputContainer');
             const messageForm = document.getElementById('messageForm');
             const nameInput = document.getElementById('nameInput');
             const messageInput = document.getElementById('messageInput');
@@ -65,7 +67,6 @@
             const localVideo = document.getElementById('localVideo');
             const remoteVideosContainer = document.getElementById('remoteVideos');
             const messageSound = document.getElementById('messageSound');
-            const inputContainer = document.getElementById('inputContainer');
 
             let username;
             let peerConnection;
@@ -128,7 +129,7 @@
                 const item = document.createElement('li');
                 item.textContent = msg;
                 messagesList.appendChild(item);
-                adjustInputContainer(); // Adjust input container position
+                scrollToBottom();
                 playMessageSound(); // Play sound on new message
             });
 
@@ -162,7 +163,7 @@
 
                 item.appendChild(content);
                 messagesList.appendChild(item);
-                adjustInputContainer(); // Adjust input container position
+                scrollToBottom();
                 playMessageSound(); // Play sound on new file upload
             });
 
@@ -202,7 +203,7 @@
 
                     messagesList.appendChild(item);
                 });
-                adjustInputContainer(); // Adjust input container position
+                scrollToBottom();
             });
 
             // Handle video chat button click
@@ -311,27 +312,25 @@
                 }
             });
 
-            // Function to adjust input container position based on scroll
-            function adjustInputContainer() {
-                const isAtBottom = isScrollAtBottom();
-                if (isAtBottom) {
-                    inputContainer.style.bottom = '0';
+            // Function to scroll to the bottom of messages
+            function scrollToBottom() {
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            // Handle input container position based on scroll
+            window.addEventListener('scroll', function() {
+                const scrolledToBottom = isScrolledToBottom();
+                if (scrolledToBottom) {
+                    inputContainer.classList.add('fixed');
                 } else {
-                    inputContainer.style.bottom = 'auto';
+                    inputContainer.classList.remove('fixed');
                 }
+            });
+
+            // Function to check if scrolled to bottom of messages
+            function isScrolledToBottom() {
+                return messages.scrollHeight - messages.clientHeight <= messages.scrollTop + 1;
             }
-
-            // Function to check if scroll is at the bottom
-            function isScrollAtBottom() {
-                const messages = document.getElementById('messages');
-                return messages.scrollHeight - messages.scrollTop === messages.clientHeight;
-            }
-
-            // Event listener for scrolling
-            document.getElementById('messages').addEventListener('scroll', adjustInputContainer);
-
-            // Initial adjustment
-            adjustInputContainer();
         });
 
     </script>

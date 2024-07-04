@@ -75,7 +75,7 @@ body {
     flex: 1;
     overflow-y: scroll;
     overflow-x: hidden;
-    margin-bottom: 60px; /* Adjust to match input container height */
+    margin-bottom: 100px; /* Ensure there is always a gap */
 }
 
 #messagesList {
@@ -93,6 +93,11 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 1000; /* Ensure it stays above other content */
+    transition: bottom 0.3s ease; /* Smooth transition */
+}
+
+#inputContainer.fixed {
+    bottom: 20px; /* Adjust as needed for the gap */
 }
 
 #messageForm button, #fileForm button {
