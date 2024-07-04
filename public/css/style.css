@@ -92,12 +92,15 @@ body {
     position: fixed;
     bottom: 0;
     width: calc(100% - 250px); /* Adjust to match sidebar width */
+    max-width: 600px; /* Limit maximum width */
     background-color: #40444b;
     padding: 10px;
     display: flex;
     flex-direction: row; /* Change to row to align buttons horizontally */
     justify-content: space-between; /* Spread items evenly */
     align-items: center; /* Center items vertically */
+    left: 250px; /* Align with sidebar */
+    box-sizing: border-box; /* Include padding and border in width calculation */
 }
 
 #messageForm, #fileForm {
@@ -183,5 +186,6 @@ body {
         position: relative;
         width: 100%;
         margin-top: 10px;
+        left: 0;
     }
 }
