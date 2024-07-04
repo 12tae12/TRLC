@@ -85,7 +85,7 @@ body {
 }
 
 #inputContainer {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     width: calc(100% - 250px); /* Adjust to match sidebar width */
     background-color: #40444b;
