@@ -89,11 +89,9 @@ body {
     background-color: #40444b;
     padding: 10px;
     display: flex;
-    flex-direction: row; /* Change to row to align buttons horizontally */
     justify-content: space-between; /* Spread items evenly */
     align-items: center; /* Center items vertically */
 }
-
 
 #messageForm, #fileForm {
     display: flex;
@@ -119,6 +117,7 @@ body {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    width: 120px; /* Set a fixed width for buttons */
 }
 
 #messageForm button:hover, #fileForm button:hover {
