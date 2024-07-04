@@ -11,7 +11,8 @@ const io = socketIo(server);
 
 const upload = multer({ dest: 'uploads/' });
 
-app.use(express.static('public'));
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Initialize an array to store chat messages
@@ -49,5 +50,5 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`listening on *:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -1,183 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #36393f;
-            color: #dcddde;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #messages {
-            list-style-type: none;
-            margin: 0;
-            padding: 10px;
-            overflow-y: scroll;
-            flex: 1;
-            padding-bottom: 120px; /* Increased space for the input forms */
-            margin-left: 250px; /* Adjust the margin to accommodate the sidebar */
-            transition: margin-left 0.3s ease;
-        }
-
-        #messages.open {
-            margin-left: 0;
-        }
-
-        #messages li {
-            padding: 8px;
-            margin-bottom: 10px;
-            background-color: #2f3136;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        #messages img, #messages video {
-            max-width: 100%;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-
-        #inputContainer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #40444b;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #nameInput, #messageInput, #fileInput {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #40444b;
-            color: #dcddde;
-        }
-
-        #messageForm button, #fileForm button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-right: 15px; /* Added margin to move buttons away from the side */
-        }
-
-        #messageForm button:hover, #fileForm button:hover {
-            background-color: #4752c4;
-        }
-
-        .fa-paper-plane, .fa-file-upload {
-            margin-right: 5px;
-        }
-
-        .username {
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        a {
-            color: #00aff4;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-        }
-
-        #sidebar {
-            width: 250px;
-            background-color: #36393f;
-            color: #dcddde;
-            height: 100%;
-            position: fixed;
-            left: -250px;
-            transition: left 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            z-index: 1;
-        }
-
-        #sidebarHeader {
-            background-color: #40444b;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        #sidebarHeader h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        #toggleSidebar {
-            background-color: transparent;
-            border: none;
-            color: #dcddde;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        #channelList {
-            list-style-type: none;
-            padding: 0;
-            margin: 10px 0;
-        }
-
-        #channelList li {
-            padding: 8px;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-
-        #sidebarFooter {
-            margin-top: auto; /* Push the footer to the bottom */
-            padding: 10px;
-        }
-
-        .sidebarButton {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-bottom: 5px;
-        }
-
-        .sidebarButton:hover {
-            background-color: #4752c4;
-        }
-
-        .fa-comment-alt, .fa-video {
-            margin-right: 5px;
-        }
-
-    </style>
 </head>
 <body>
     <div id="sidebar">
@@ -186,159 +14,36 @@
             <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
         </div>
         <ul id="channelList">
-            <!-- Add your channels or categories here -->
-            <li># General</li>
-            <li># Random</li>
+            <li id="textChatButton" class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</li>
+            <li id="videoChatButton" class="sidebarButton"><i class="fas fa-video"></i> Video Chat</li>
         </ul>
         <div id="sidebarFooter">
-            <button class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</button>
-            <button class="sidebarButton"><i class="fas fa-video"></i> Video Chat</button>
+            <p>Logged in as User123</p>
         </div>
     </div>
 
-    <ul id="messages"></ul>
-    <div id="inputContainer">
-        <form id="messageForm" action="">
-            <input id="nameInput" placeholder="Enter your username" autocomplete="off" />
-            <input id="messageInput" placeholder="Message" autocomplete="off" />
-            <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
-        </form>
-        <form id="fileForm" enctype="multipart/form-data">
-            <input type="file" id="fileInput" name="file" />
-            <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
-        </form>
+    <div id="messages">
+        <ul id="messagesList"></ul>
+        <div id="inputContainer">
+            <form id="messageForm">
+                <input type="text" id="nameInput" placeholder="Enter your username" autocomplete="off">
+                <input type="text" id="messageInput" placeholder="Message" autocomplete="off">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
+            <form id="fileForm" enctype="multipart/form-data">
+                <input type="file" id="fileInput" name="file">
+                <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
+            </form>
+        </div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-        var form = document.getElementById('messageForm');
-        var nameInput = document.getElementById('nameInput');
-        var messageInput = document.getElementById('messageInput');
-        var fileForm = document.getElementById('fileForm');
-        var fileInput = document.getElementById('fileInput');
-        var fileButton = document.getElementById('fileButton');
-        var messages = document.getElementById('messages');
-        var username; // Declare the username variable globally
-        var lastMessageUsername; // Variable to track the last username
 
-        // Wait for the authentication script to finish
-        setTimeout(function() {
-            // Prompt for username
-            var userPrompt = prompt("Enter your desired username:");
+    <div id="videoChatContainer">
+        <h2>Video Chat</h2>
+        <video id="localVideo" autoplay muted></video>
+        <div id="remoteVideos"></div>
+    </div>
 
-            if (userPrompt !== null && userPrompt !== "") {
-                username = userPrompt; // Update the username if a valid input is provided
-            } else {
-                username = "Anonymous"; // Default username if prompt is cancelled or empty
-            }
-
-            // Pre-fill the name input with the username
-            nameInput.value = username; 
-        }, 100); // Adjust the timeout value if needed
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (messageInput.value) {
-                var msg = messageInput.value.trim();
-                if (lastMessageUsername !== username) {
-                    lastMessageUsername = username;
-                    msg = username + ": " + msg; // Include username before the message
-                }
-                socket.emit('chat message', msg);
-                messageInput.value = '';
-            }
-        });
-
-        fileButton.addEventListener('click', function() {
-            var file = fileInput.files[0];
-            if (file) {
-                var formData = new FormData();
-                formData.append('file', file);
-                formData.append('username', username);
-
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.error('Error uploading file:', error);
-                });
-            }
-        });
-
-        // Handle incoming chat messages
-        socket.on('chat message', function(msg) {
-            var item = document.createElement('li');
-            if (msg.startsWith(username + ":")) {
-                item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
-            } else {
-                item.textContent = msg;
-            }
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-
-        // Handle incoming chat history
-        socket.on('chat history', function(history) {
-            history.forEach(function(msg) {
-                var item = document.createElement('li');
-                if (typeof msg === 'string') {
-                    if (msg.startsWith(username + ":")) {
-                        item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
-                    } else {
-                        item.textContent = msg;
-                    }
-                } else if (msg.mimetype.startsWith('image/')) {
-                    var img = document.createElement('img');
-                    img.src = '/uploads/' + msg.filename;
-                    item.innerHTML = '<span class="username">' + msg.username + ':</span> ';
-                    item.appendChild(img);
-                } else if (msg.mimetype.startsWith('video/')) {
-                    var video = document.createElement('video');
-                    video.controls = true;
-                    video.src = '/uploads/' + msg.filename;
-                    item.innerHTML = '<span class="username">' + msg.username + ':</span> ';
-                    item.appendChild(video);
-                }
-                messages.appendChild(item);
-            });
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-
-        // Handle incoming file messages
-        socket.on('file upload', function(fileInfo) {
-            var item = document.createElement('li');
-            if (fileInfo.mimetype.startsWith('image/')) {
-                var img = document.createElement('img');
-                img.src = '/uploads/' + fileInfo.filename;
-                item.innerHTML = '<span class="username">' + fileInfo.username + ':</span> ';
-                item.appendChild(img);
-            } else if (fileInfo.mimetype.startsWith('video/')) {
-                var video = document.createElement('video');
-                video.controls = true;
-                video.src = '/uploads/' + fileInfo.filename;
-                item.innerHTML = '<span class="username">' + fileInfo.username + ':</span> ';
-                item.appendChild(video);
-            } else {
-                var link = document.createElement('a');
-                link.href = '/uploads/' + fileInfo.filename;
-                link.textContent = fileInfo.username + ' sent a file: ' + fileInfo.originalname;
-                link.target = '_blank';
-                item.appendChild(link);
-            }
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-
-        // Toggle sidebar functionality
-        document.getElementById('toggleSidebar').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('messages').classList.toggle('open');
-        });
-    </script>
+    <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

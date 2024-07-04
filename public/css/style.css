@@ -1,0 +1,160 @@
+/* Reset and basic styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #36393f;
+    color: #dcddde;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar styles */
+#sidebar {
+    width: 250px;
+    background-color: #2f3136;
+    color: #dcddde;
+    height: 100%;
+    overflow-y: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebarHeader {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #292b2f;
+}
+
+#sidebarHeader h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#toggleSidebar {
+    border: none;
+    background-color: transparent;
+    color: #dcddde;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#channelList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebarButton {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sidebarButton:hover {
+    background-color: #40444b;
+}
+
+#sidebarFooter {
+    padding: 15px;
+    margin-top: auto;
+    background-color: #292b2f;
+}
+
+/* Messages and Input Container */
+#messages {
+    margin-left: 250px; /* Adjust to match sidebar width */
+    padding: 10px;
+    flex: 1;
+    overflow-y: scroll;
+}
+
+#messagesList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#inputContainer {
+    position: fixed;
+    bottom: 0;
+    width: calc(100% - 250px); /* Adjust to match sidebar width */
+    background-color: #40444b;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+#messageForm, #fileForm {
+    display: flex;
+    gap: 10px;
+}
+
+#nameInput, #messageInput, #fileInput {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #40444b;
+    color: #dcddde;
+}
+
+#messageForm button, #fileForm button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#messageForm button:hover, #fileForm button:hover {
+    background-color: #4752c4;
+}
+
+.fa-paper-plane, .fa-file-upload {
+    margin-right: 5px;
+}
+
+/* Video Chat Container */
+#videoChatContainer {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #36393f;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 999;
+}
+
+#videoChatContainer h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #dcddde;
+    text-align: center;
+}
+
+#localVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.remoteVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
