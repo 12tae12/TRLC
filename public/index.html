@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <audio id="messageSound" src="ping.mp3" preload="auto"></audio>
+
     <div id="sidebar">
         <div id="sidebarHeader">
             <h2>Channels</h2>
@@ -62,6 +64,7 @@
             const videoChatContainer = document.getElementById('videoChatContainer');
             const localVideo = document.getElementById('localVideo');
             const remoteVideosContainer = document.getElementById('remoteVideos');
+            const messageSound = document.getElementById('messageSound');
 
             let username;
             let peerConnection;
@@ -114,42 +117,89 @@
                 }
             });
 
+            // Function to play sound
+            function playMessageSound() {
+                messageSound.play();
+            }
+
             // Handle incoming chat messages
             socket.on('chat message', function(msg) {
                 const item = document.createElement('li');
                 item.textContent = msg;
                 messagesList.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
+                playMessageSound(); // Play sound on new message
             });
 
             // Handle incoming file uploads
             socket.on('file upload', function(fileInfo) {
                 const item = document.createElement('li');
-                const link = document.createElement('a');
-                link.href = `/uploads/${fileInfo.filename}`;
-                link.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
-                link.target = '_blank';
-                item.appendChild(link);
+                let content;
+
+                // Check the file type and create the appropriate element
+                if (fileInfo.mimetype.startsWith('image/')) {
+                    content = document.createElement('img');
+                    content.src = `/uploads/${fileInfo.filename}`;
+                    content.alt = `${fileInfo.username} uploaded an image`;
+                    content.style.maxWidth = '100%';
+                } else if (fileInfo.mimetype.startsWith('video/')) {
+                    content = document.createElement('video');
+                    content.src = `/uploads/${fileInfo.filename}`;
+                    content.controls = true;
+                    content.style.maxWidth = '100%';
+                } else if (fileInfo.mimetype.startsWith('audio/')) {
+                    content = document.createElement('audio');
+                    content.src = `/uploads/${fileInfo.filename}`;
+                    content.controls = true;
+                    content.style.maxWidth = '100%';
+                } else {
+                    content = document.createElement('a');
+                    content.href = `/uploads/${fileInfo.filename}`;
+                    content.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
+                    content.target = '_blank';
+                }
+
+                item.appendChild(content);
                 messagesList.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
+                playMessageSound(); // Play sound on new file upload
             });
 
             // Handle incoming chat history
             socket.on('chat history', function(history) {
                 history.forEach(function(msg) {
+                    const item = document.createElement('li');
+                    let content;
+
                     if (typeof msg === 'string') {
-                        const item = document.createElement('li');
                         item.textContent = msg;
-                        messagesList.appendChild(item);
                     } else if (typeof msg === 'object') {
-                        const item = document.createElement('li');
-                        const link = document.createElement('a');
-                        link.href = `/uploads/${msg.filename}`;
-                        link.textContent = `${msg.username} uploaded: ${msg.originalname}`;
-                        link.target = '_blank';
-                        item.appendChild(link);
-                        messagesList.appendChild(item);
+                        if (msg.mimetype.startsWith('image/')) {
+                            content = document.createElement('img');
+                            content.src = `/uploads/${msg.filename}`;
+                            content.alt = `${msg.username} uploaded an image`;
+                            content.style.maxWidth = '100%';
+                        } else if (msg.mimetype.startsWith('video/')) {
+                            content = document.createElement('video');
+                            content.src = `/uploads/${msg.filename}`;
+                            content.controls = true;
+                            content.style.maxWidth = '100%';
+                        } else if (msg.mimetype.startsWith('audio/')) {
+                            content = document.createElement('audio');
+                            content.src = `/uploads/${msg.filename}`;
+                            content.controls = true;
+                            content.style.maxWidth = '100%';
+                        } else {
+                            content = document.createElement('a');
+                            content.href = `/uploads/${msg.filename}`;
+                            content.textContent = `${msg.username} uploaded: ${msg.originalname}`;
+                            content.target = '_blank';
+                        }
+
+                        item.appendChild(content);
                     }
+
+                    messagesList.appendChild(item);
                 });
                 window.scrollTo(0, document.body.scrollHeight);
             });

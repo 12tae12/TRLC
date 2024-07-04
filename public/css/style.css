@@ -74,6 +74,8 @@ body {
     padding: 10px;
     flex: 1;
     overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 60px; /* Adjust to match input container height */
 }
 
 #messagesList {
@@ -82,8 +84,16 @@ body {
     margin: 0;
 }
 
-#inputContainer { position: fixed; bottom: 0; width: calc(100% - 250px); /* Adjust to match sidebar width */ background-color: #40444b; padding: 10px; display: flex; flex-direction: column; }
-
+#inputContainer {
+    position: sticky;
+    bottom: 0;
+    width: calc(100% - 250px); /* Adjust to match sidebar width */
+    background-color: #40444b;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Ensure it stays above other content */
+}
 
 #messageForm button, #fileForm button {
     padding: 0px;
@@ -92,7 +102,7 @@ body {
     color: white;
     border: none;
     cursor: pointer;
-    gap: 10px
+    gap: 10px;
     border-radius: 0px;
     margin-right: 0%; /* Set the margin to 2% of the parent element's width */
 }
