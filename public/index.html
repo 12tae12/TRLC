@@ -18,7 +18,7 @@
             <li id="videoChatButton" class="sidebarButton"><i class="fas fa-video"></i> Video Chat</li>
         </ul>
         <div id="sidebarFooter">
-            <p>Made by 12Tae12 https://1t2.pages.dev</p>
+            <p>Logged in as User123</p>
         </div>
     </div>
 
@@ -47,20 +47,38 @@
     <script src="js/script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const textChatButton = document.getElementById('textChatButton');
             const videoChatButton = document.getElementById('videoChatButton');
             const videoChatContainer = document.getElementById('videoChatContainer');
 
-            // Handle video chat button click
-            videoChatButton.addEventListener('click', function() {
-                toggleVideoChat();
+            // Toggle sidebar visibility
+            toggleSidebar.addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
             });
 
-            // Function to toggle video chat container visibility
-            function toggleVideoChat() {
+            // Handle text chat button click
+            textChatButton.addEventListener('click', function() {
+                if (videoChatContainer.style.display !== 'none') {
+                    toggleVideoChat();
+                }
+                document.getElementById('sidebar').classList.remove('active');
+            });
+
+            // Handle video chat button click
+            videoChatButton.addEventListener('click', function() {
                 if (videoChatContainer.style.display === 'none') {
                     videoChatContainer.style.display = 'block';
                     startVideoChat();
                 } else {
+                    toggleVideoChat();
+                }
+                document.getElementById('sidebar').classList.remove('active');
+            });
+
+            // Function to toggle video chat container visibility
+            function toggleVideoChat() {
+                if (videoChatContainer.style.display === 'block') {
                     videoChatContainer.style.display = 'none';
                     stopVideoChat();
                 }
