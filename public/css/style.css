@@ -87,22 +87,18 @@ body {
     bottom: 0;
     width: calc(100% - 250px); /* Adjust to match sidebar width */
     background-color: #40444b;
-    padding: 10px;
+    padding: 10px 20px 10px 10px; /* Add some padding to the right side */
     display: flex;
-    flex-direction: row; /* Change to row to align buttons horizontally */
-    justify-content: space-between; /* Spread items evenly */
-    align-items: center; /* Center items vertically */
+    flex-direction: column;
 }
-
 
 #messageForm, #fileForm {
     display: flex;
     gap: 10px;
-    flex: 1; /* Expand forms to fill available space */
 }
 
 #nameInput, #messageInput, #fileInput {
-    flex: 1; /* Allow inputs to expand */
+    flex: 1;
     padding: 10px;
     font-size: 16px;
     border: none;

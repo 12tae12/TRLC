@@ -8,40 +8,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div id="sidebar">
-            <div id="sidebarHeader">
-                <h2>Channels</h2>
-                <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
-            </div>
-            <ul id="channelList">
-                <li id="textChatButton" class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</li>
-                <li id="videoChatButton" class="sidebarButton"><i class="fas fa-video"></i> Video Chat</li>
-            </ul>
-            <div id="sidebarFooter">
-                <p>12Tae12 Software. Https://1t2.pages.dev</p>
-            </div>
+    <div id="sidebar">
+        <div id="sidebarHeader">
+            <h2>Channels</h2>
+            <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
         </div>
+        <ul id="channelList">
+            <li id="textChatButton" class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</li>
+            <li id="videoChatButton" class="sidebarButton"><i class="fas fa-video"></i> Video Chat</li>
+        </ul>
+        <div id="sidebarFooter">
+            <p>12Tae12 Software. Https://1t2.pages.dev</p>
+        </div>
+    </div>
 
-        <div id="messages">
-            <ul id="messagesList"></ul>
-            <div id="inputContainer">
-                <form id="messageForm">
-                    <input type="text" id="nameInput" placeholder="Enter your username" autocomplete="off">
-                    <input type="text" id="messageInput" placeholder="Message" autocomplete="off">
-                    <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
-                </form>
-                <form id="fileForm" enctype="multipart/form-data">
-                    <input type="file" id="fileInput" name="file">
-                    <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
-                </form>
-            </div>
+    <div id="messages">
+        <ul id="messagesList"></ul>
+        <div id="inputContainer">
+            <form id="messageForm">
+                <input type="text" id="nameInput" placeholder="Enter your username" autocomplete="off">
+                <input type="text" id="messageInput" placeholder="Message" autocomplete="off">
+                <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
+            <form id="fileForm" enctype="multipart/form-data">
+                <input type="file" id="fileInput" name="file">
+                <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
+            </form>
         </div>
+    </div>
 
-        <div id="videoChatContainer">
-            <h2>Video Chat</h2>
-            <div id="videosContainer"></div>
-        </div>
+    <div id="videoChatContainer">
+        <h2>Video Chat</h2>
+        <div id="videosContainer"></div>
     </div>
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
