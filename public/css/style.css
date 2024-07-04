@@ -82,23 +82,23 @@ body {
     margin: 0;
 }
 
-#inputContainer {
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - 250px); /* Adjust to match sidebar width */
-    background-color: #40444b;
-    padding: 10px 20px 10px 10px; /* Add some padding to the right side */
-    display: flex;
-    flex-direction: column;
-}
+#inputContainer { position: fixed; bottom: 0; width: calc(100% - 250px); /* Adjust to match sidebar width */ background-color: #40444b; padding: 10px; display: flex; flex-direction: column; }
 
-#messageForm, #fileForm {
-    display: flex;
-    gap: 10px;
+
+#messageForm button, #fileForm button {
+    padding: 0px;
+    font-size: 16px;
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    gap: 10px
+    border-radius: 0px;
+    margin-right: 0%; /* Set the margin to 2% of the parent element's width */
 }
 
 #nameInput, #messageInput, #fileInput {
-    flex: 1;
+    flex: 1; /* Allow inputs to expand */
     padding: 10px;
     font-size: 16px;
     border: none;
