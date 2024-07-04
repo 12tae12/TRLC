@@ -11,8 +11,7 @@ const io = socketIo(server);
 
 const upload = multer({ dest: 'uploads/' });
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Initialize an array to store chat messages
@@ -20,16 +19,36 @@ let chatMessages = [];
 
 io.on('connection', (socket) => {
     console.log('a user connected');
-    // Send chat history only on connection
+
+    // Text Chat
     socket.emit('chat history', chatMessages);
+
     socket.on('chat message', (msg) => {
-        // Add the message to the array
         chatMessages.push(msg);
-        // Emit the message to all connected clients
         io.emit('chat message', msg);
     });
+
+    // Video Chat
+    socket.on('join video chat', () => {
+        socket.broadcast.emit('user joined', socket.id);
+    });
+
+    socket.on('offer', (userId, offer) => {
+        socket.to(userId).emit('offer', socket.id, offer);
+    });
+
+    socket.on('answer', (userId, answer) => {
+        socket.to(userId).emit('answer', socket.id, answer);
+    });
+
+    socket.on('ice candidate', (userId, candidate) => {
+        socket.to(userId).emit('ice candidate', socket.id, candidate);
+    });
+
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        // Remove user from video chat
+        socket.broadcast.emit('user left', socket.id);
     });
 });
 
@@ -50,5 +69,5 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Listening on *:${PORT}`);
 });

@@ -39,11 +39,33 @@
 
     <div id="videoChatContainer">
         <h2>Video Chat</h2>
-        <video id="localVideo" autoplay muted></video>
-        <div id="remoteVideos"></div>
+        <div id="videosContainer"></div>
     </div>
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+    <script src="js/webrtc.js"></script>
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoChatButton = document.getElementById('videoChatButton');
+            const videoChatContainer = document.getElementById('videoChatContainer');
+
+            // Handle video chat button click
+            videoChatButton.addEventListener('click', function() {
+                toggleVideoChat();
+            });
+
+            // Function to toggle video chat container visibility
+            function toggleVideoChat() {
+                if (videoChatContainer.style.display === 'none') {
+                    videoChatContainer.style.display = 'block';
+                    startVideoChat();
+                } else {
+                    videoChatContainer.style.display = 'none';
+                    stopVideoChat();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
