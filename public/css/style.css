@@ -11,6 +11,12 @@ body {
     overflow: hidden;
 }
 
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 /* Sidebar styles */
 #sidebar {
     width: 250px;
@@ -89,6 +95,7 @@ body {
     background-color: #40444b;
     padding: 10px;
     display: flex;
+    flex-direction: row; /* Change to row to align buttons horizontally */
     justify-content: space-between; /* Spread items evenly */
     align-items: center; /* Center items vertically */
 }
@@ -96,7 +103,6 @@ body {
 #messageForm, #fileForm {
     display: flex;
     gap: 10px;
-    flex: 1; /* Expand forms to fill available space */
 }
 
 #nameInput, #messageInput, #fileInput {
@@ -110,14 +116,13 @@ body {
 }
 
 #messageForm button, #fileForm button {
-    padding: 10px;
+    padding: 10px 20px; /* Adjust padding for better button size */
     font-size: 16px;
     background-color: #5865f2;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
-    width: 120px; /* Set a fixed width for buttons */
 }
 
 #messageForm button:hover, #fileForm button:hover {
@@ -160,4 +165,23 @@ body {
     max-width: 400px;
     border-radius: 10px;
     margin-bottom: 10px;
+}
+
+/* Media Queries for Responsive Design */
+@media screen and (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+
+    #messages {
+        margin-left: 0;
+    }
+
+    #inputContainer {
+        position: relative;
+        width: 100%;
+        margin-top: 10px;
+    }
 }
