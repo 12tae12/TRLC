@@ -2,52 +2,118 @@
 <html>
 <head>
     <title>Chat App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Add some basic styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #36393f;
+            color: #dcddde;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         #messages {
             list-style-type: none;
             margin: 0;
-            padding: 0;
+            padding: 10px;
+            overflow-y: scroll;
+            flex: 1;
+            padding-bottom: 120px; /* Increased space for the input forms */
         }
+
         #messages li {
             padding: 8px;
             margin-bottom: 10px;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-        }
-        #messageForm {
+            background-color: #2f3136;
+            border-radius: 5px;
             display: flex;
-            margin-top: 10px;
+            flex-direction: column;
+            align-items: flex-start;
         }
-        #messageForm input {
+
+        #messages img, #messages video {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        #inputContainer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #40444b;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #nameInput, #messageInput, #fileInput {
             flex: 1;
             padding: 10px;
             font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #40444b;
+            color: #dcddde;
         }
-        #messageForm button {
+
+        #messageForm button, #fileForm button {
             padding: 10px;
             font-size: 16px;
-            background-color: #4CAF50;
+            background-color: #5865f2;
             color: white;
             border: none;
             cursor: pointer;
+            border-radius: 5px;
+            margin-right: 15px; /* Added margin to move buttons away from the side */
         }
-        #fileForm {
-            margin-top: 10px;
+
+        #messageForm button:hover, #fileForm button:hover {
+            background-color: #4752c4;
+        }
+
+        .fa-paper-plane, .fa-file-upload {
+            margin-right: 5px;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        a {
+            color: #00aff4;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
     <ul id="messages"></ul>
-    <form id="messageForm" action="">
-        <input id="nameInput" placeholder="Enter your username" autocomplete="off" />
-        <input id="messageInput" placeholder="Message" autocomplete="off" />
-        <button>Send</button>
-    </form>
-    <form id="fileForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" name="file" />
-        <button type="button" id="fileButton">Send File</button>
-    </form>
+    <div id="inputContainer">
+        <form id="messageForm" action="">
+            <input id="nameInput" placeholder="Enter your username" autocomplete="off" />
+            <input id="messageInput" placeholder="Message" autocomplete="off" />
+            <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+        </form>
+        <form id="fileForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" />
+            <button type="button" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
+        </form>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
@@ -108,7 +174,7 @@
         // Handle incoming chat messages
         socket.on('chat message', function(msg) {
             var item = document.createElement('li');
-            item.textContent = msg;
+            item.innerHTML = '<span class="username">' + username + ':</span> ' + msg;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
@@ -117,7 +183,20 @@
         socket.on('chat history', function(history) {
             history.forEach(function(msg) {
                 var item = document.createElement('li');
-                item.textContent = msg;
+                if (typeof msg === 'string') {
+                    item.innerHTML = '<span class="username">' + msg.split(':')[0] + ':</span> ' + msg.split(':').slice(1).join(':');
+                } else if (msg.mimetype.startsWith('image/')) {
+                    var img = document.createElement('img');
+                    img.src = '/uploads/' + msg.filename;
+                    item.innerHTML = '<span class="username">' + msg.username + ':</span> ';
+                    item.appendChild(img);
+                } else if (msg.mimetype.startsWith('video/')) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = '/uploads/' + msg.filename;
+                    item.innerHTML = '<span class="username">' + msg.username + ':</span> ';
+                    item.appendChild(video);
+                }
                 messages.appendChild(item);
             });
             window.scrollTo(0, document.body.scrollHeight);
@@ -126,11 +205,24 @@
         // Handle incoming file messages
         socket.on('file upload', function(fileInfo) {
             var item = document.createElement('li');
-            var link = document.createElement('a');
-            link.href = '/uploads/' + fileInfo.filename;
-            link.textContent = fileInfo.username + ' sent a file: ' + fileInfo.originalname;
-            link.target = '_blank';
-            item.appendChild(link);
+            if (fileInfo.mimetype.startsWith('image/')) {
+                var img = document.createElement('img');
+                img.src = '/uploads/' + fileInfo.filename;
+                item.innerHTML = '<span class="username">' + fileInfo.username + ':</span> ';
+                item.appendChild(img);
+            } else if (fileInfo.mimetype.startsWith('video/')) {
+                var video = document.createElement('video');
+                video.controls = true;
+                video.src = '/uploads/' + fileInfo.filename;
+                item.innerHTML = '<span class="username">' + fileInfo.username + ':</span> ';
+                item.appendChild(video);
+            } else {
+                var link = document.createElement('a');
+                link.href = '/uploads/' + fileInfo.filename;
+                link.textContent = fileInfo.username + ' sent a file: ' + fileInfo.originalname;
+                link.target = '_blank';
+                item.appendChild(link);
+            }
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
