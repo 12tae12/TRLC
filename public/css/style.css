@@ -98,10 +98,11 @@ body {
 #messageForm, #fileForm {
     display: flex;
     gap: 10px;
+    flex: 1; /* Expand forms to fill available space */
 }
 
 #nameInput, #messageInput, #fileInput {
-    flex: 1;
+    flex: 1; /* Allow inputs to expand */
     padding: 10px;
     font-size: 16px;
     border: none;
