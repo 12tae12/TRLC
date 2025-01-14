@@ -17,6 +17,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Initialize an array to store chat messages
 let chatMessages = [];
 
+// Notifications array to store notifications
+const notifications = [];
+
+// Users array to store user profiles
+const users = [];
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -26,23 +32,6 @@ io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
         chatMessages.push(msg);
         io.emit('chat message', msg);
-    });
-
-    // Video Chat
-    socket.on('join video chat', () => {
-        socket.broadcast.emit('user joined', socket.id);
-    });
-
-    socket.on('offer', (userId, offer) => {
-        socket.to(userId).emit('offer', socket.id, offer);
-    });
-
-    socket.on('answer', (userId, answer) => {
-        socket.to(userId).emit('answer', socket.id, answer);
-    });
-
-    socket.on('ice candidate', (userId, candidate) => {
-        socket.to(userId).emit('ice candidate', socket.id, candidate);
     });
 
     socket.on('disconnect', () => {
@@ -65,6 +54,31 @@ app.post('/upload', upload.single('file'), (req, res) => {
     chatMessages.push(fileInfo);
     io.emit('file upload', fileInfo);
     res.send('File uploaded successfully');
+});
+
+// Endpoint to get notifications
+app.get('/notifications', (req, res) => {
+    res.json(notifications);
+});
+
+// Endpoint to add a notification
+app.post('/notifications', (req, res) => {
+    const notification = req.body;
+    notifications.push(notification);
+    io.emit('new notification', notification);
+    res.status(201).send('Notification added');
+});
+
+// Endpoint to get user profiles
+app.get('/users', (req, res) => {
+    res.json(users);
+});
+
+// Endpoint to add a user profile
+app.post('/users', (req, res) => {
+    const user = req.body;
+    users.push(user);
+    res.status(201).send('User profile added');
 });
 
 const PORT = process.env.PORT || 3000;

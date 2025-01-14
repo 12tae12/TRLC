@@ -17,7 +17,6 @@
         </div>
         <ul id="channelList">
             <li id="textChatButton" class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</li>
-            <li id="videoChatButton" class="sidebarButton"><i class="fas fa-video"></i> Video Chat</li>
         </ul>
         <div id="sidebarFooter">
             <p>12Tae12 Software. Https://1t2.pages.dev</p>
@@ -39,16 +38,16 @@
         </div>
     </div>
 
-    <div id="videoChatContainer">
-        <h2>Video Chat</h2>
-        <div id="videosContainer">
-            <video id="localVideo" autoplay muted></video>
-            <div id="remoteVideos"></div>
-        </div>
+    <div>
+        <h2>Create User Profile</h2>
+        <form onsubmit="event.preventDefault(); addUserProfile(username.value, email.value);">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email or anonymous@example.com" required>
+            <button type="submit">Create Profile</button>
+        </form>
     </div>
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
-    <script src="js/webrtc.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -331,8 +330,43 @@
             function isScrolledToBottom() {
                 return messages.scrollHeight - messages.clientHeight <= messages.scrollTop + 1;
             }
+
+            // Listen for new notifications
+            socket.on('new notification', (notification) => {
+                displayNotification(notification);
+            });
+
+            function displayNotification(notification) {
+                const notificationElement = document.createElement('div');
+                notificationElement.className = 'notification';
+                notificationElement.innerText = notification.message;
+                document.body.appendChild(notificationElement);
+                setTimeout(() => {
+                    notificationElement.remove();
+                }, 5000);
+            }
         });
 
+        async function addUserProfile(username, email) {
+            const response = await fetch('/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email })
+            });
+            if (response.ok) {
+                alert('User profile added successfully');
+            } else {
+                alert('Failed to add user profile');
+            }
+        }
+
+        async function getUserProfiles() {
+            const response = await fetch('/users');
+            const users = await response.json();
+            console.log(users);
+        }
     </script>
 </body>
 </html>
