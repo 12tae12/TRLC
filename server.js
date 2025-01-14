@@ -21,7 +21,13 @@ let chatMessages = [];
 const notifications = [];
 
 // Users array to store user profiles
-const users = [];
+const usersFilePath = './users.json';
+
+// Load existing users from file
+let users = [];
+if (fs.existsSync(usersFilePath)) {
+    users = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
+}
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -78,6 +84,7 @@ app.get('/users', (req, res) => {
 app.post('/users', (req, res) => {
     const user = req.body;
     users.push(user);
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
     res.status(201).send('User profile added');
 });
 

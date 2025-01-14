@@ -40,9 +40,9 @@
 
     <div>
         <h2>Create User Profile</h2>
-        <form onsubmit="event.preventDefault(); addUserProfile(username.value, email.value);">
+        <form id="userProfileForm">
             <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Email or anonymous@example.com" required>
+            <input type="email" name="email" placeholder="Email" required>
             <button type="submit">Create Profile</button>
         </form>
     </div>
@@ -347,6 +347,14 @@
             }
         });
 
+        document.getElementById('userProfileForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const username = formData.get('username');
+            const email = formData.get('email');
+            await addUserProfile(username, email);
+        });
+
         async function addUserProfile(username, email) {
             const response = await fetch('/users', {
                 method: 'POST',
@@ -356,6 +364,8 @@
                 body: JSON.stringify({ username, email })
             });
             if (response.ok) {
+                document.cookie = `username=${username}; path=/`;
+                document.cookie = `email=${email}; path=/`;
                 alert('User profile added successfully');
             } else {
                 alert('Failed to add user profile');
