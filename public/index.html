@@ -57,7 +57,7 @@
             const fileInput = document.getElementById('fileInput');
             const fileButton = document.getElementById('fileButton');
             const messageSound = document.getElementById('messageSound');
-            const threadSelect = document.getElementById('threadSelect');
+            const channelList = document.getElementById('channelList');
 
             let username = localStorage.getItem('username');
             let currentThread = null;
@@ -79,18 +79,15 @@
                 .then(response => response.json())
                 .then(data => {
                     data.threads.forEach(thread => {
-                        const option = document.createElement('option');
-                        option.value = thread.name;
-                        option.textContent = thread.name;
-                        threadSelect.appendChild(option);
+                        const li = document.createElement('li');
+                        li.className = 'sidebarButton';
+                        li.textContent = thread.name;
+                        li.addEventListener('click', function() {
+                            socket.emit('join thread', { username, threadName: thread.name });
+                        });
+                        channelList.appendChild(li);
                     });
                 });
-
-            // Handle thread selection
-            threadSelect.addEventListener('change', function() {
-                const selectedThread = threadSelect.value;
-                socket.emit('join thread', { username, threadName: selectedThread });
-            });
 
             socket.on('joined thread', function(threadName) {
                 currentThread = threadName;
