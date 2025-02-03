@@ -1,12 +1,13 @@
 {
     "threads": [
-        {
-            "name": "General",
-            "users": ["Top4eat21", "user2", "user3"]
-        },
-        {
-            "name": "Humans_space.",
-            "users": ["Top4eat21", "dev2", "dev3"]
-        }
+      {
+        "name": "General",
+        "users": ["Top4eat21", "James W.", "user3"]
+      },
+      {
+        "name": "Humans_space.",
+        "users": ["Top4eat21", "James W.", "dev3"]
+      }
     ]
-}
+  }
+  
