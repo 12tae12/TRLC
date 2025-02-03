@@ -38,14 +38,9 @@
         </div>
     </div>
 
-    <div>
-        <h2>Create User Profile</h2>
-        <form id="userProfileForm">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <button type="submit">Create Profile</button>
-        </form>
-    </div>
+    <select id="threadSelect">
+        <option value="" disabled selected>Select a thread</option>
+    </select>
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
     
@@ -61,47 +56,69 @@
             const fileForm = document.getElementById('fileForm');
             const fileInput = document.getElementById('fileInput');
             const fileButton = document.getElementById('fileButton');
-            const videoChatButton = document.getElementById('videoChatButton');
-            const videoChatContainer = document.getElementById('videoChatContainer');
-            const localVideo = document.getElementById('localVideo');
-            const remoteVideosContainer = document.getElementById('remoteVideos');
             const messageSound = document.getElementById('messageSound');
+            const threadSelect = document.getElementById('threadSelect');
 
-            let username;
-            let peerConnection;
-            let localStream;
-            let remoteStreams = {};
+            let username = localStorage.getItem('username');
+            let currentThread = null;
 
-            // Prompt for username
-            const userPrompt = prompt("Enter your desired username:");
-            if (userPrompt && userPrompt.trim() !== '') {
-                username = userPrompt.trim();
-            } else {
-                username = 'Anonymous';
+            if (!username) {
+                const userPrompt = prompt("Enter your desired username:");
+                if (userPrompt && userPrompt.trim() !== '') {
+                    username = userPrompt.trim();
+                    localStorage.setItem('username', username);
+                } else {
+                    username = 'Anonymous';
+                }
             }
 
-            // Pre-fill the name input with the username
             nameInput.value = username;
 
-            // Handle form submit for text messages
+            // Fetch available threads
+            fetch('/threads')
+                .then(response => response.json())
+                .then(data => {
+                    data.threads.forEach(thread => {
+                        const option = document.createElement('option');
+                        option.value = thread.name;
+                        option.textContent = thread.name;
+                        threadSelect.appendChild(option);
+                    });
+                });
+
+            // Handle thread selection
+            threadSelect.addEventListener('change', function() {
+                const selectedThread = threadSelect.value;
+                socket.emit('join thread', { username, threadName: selectedThread });
+            });
+
+            socket.on('joined thread', function(threadName) {
+                currentThread = threadName;
+                messagesList.innerHTML = ''; // Clear messages
+            });
+
+            socket.on('error', function(errorMessage) {
+                alert(errorMessage);
+            });
+
             messageForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                if (messageInput.value.trim()) {
+                if (messageInput.value.trim() && currentThread) {
                     const msg = messageInput.value.trim();
                     const formattedMsg = username + ': ' + msg;
-                    socket.emit('chat message', formattedMsg);
+                    socket.emit('chat message', { threadName: currentThread, message: formattedMsg });
                     messageInput.value = '';
                 }
             });
 
-            // Handle form submit for file uploads
             fileForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const file = fileInput.files[0];
-                if (file) {
+                if (file && currentThread) {
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('username', username);
+                    formData.append('threadName', currentThread);
 
                     fetch('/upload', {
                         method: 'POST',
@@ -118,205 +135,22 @@
                 }
             });
 
-            // Function to play sound
             function playMessageSound() {
                 messageSound.play();
             }
 
-            // Handle incoming chat messages
             socket.on('chat message', function(msg) {
                 const item = document.createElement('li');
                 item.textContent = msg;
                 messagesList.appendChild(item);
                 scrollToBottom();
-                playMessageSound(); // Play sound on new message
+                playMessageSound();
             });
 
-            // Handle incoming file uploads
-            socket.on('file upload', function(fileInfo) {
-                const item = document.createElement('li');
-                let content;
-
-                // Check the file type and create the appropriate element
-                if (fileInfo.mimetype.startsWith('image/')) {
-                    content = document.createElement('img');
-                    content.src = `/uploads/${fileInfo.filename}`;
-                    content.alt = `${fileInfo.username} uploaded an image`;
-                    content.style.maxWidth = '100%';
-                } else if (fileInfo.mimetype.startsWith('video/')) {
-                    content = document.createElement('video');
-                    content.src = `/uploads/${fileInfo.filename}`;
-                    content.controls = true;
-                    content.style.maxWidth = '100%';
-                } else if (fileInfo.mimetype.startsWith('audio/')) {
-                    content = document.createElement('audio');
-                    content.src = `/uploads/${fileInfo.filename}`;
-                    content.controls = true;
-                    content.style.maxWidth = '100%';
-                } else {
-                    content = document.createElement('a');
-                    content.href = `/uploads/${fileInfo.filename}`;
-                    content.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
-                    content.target = '_blank';
-                }
-
-                item.appendChild(content);
-                messagesList.appendChild(item);
-                scrollToBottom();
-                playMessageSound(); // Play sound on new file upload
-            });
-
-            // Handle incoming chat history
-            socket.on('chat history', function(history) {
-                history.forEach(function(msg) {
-                    const item = document.createElement('li');
-                    let content;
-
-                    if (typeof msg === 'string') {
-                        item.textContent = msg;
-                    } else if (typeof msg === 'object') {
-                        if (msg.mimetype.startsWith('image/')) {
-                            content = document.createElement('img');
-                            content.src = `/uploads/${msg.filename}`;
-                            content.alt = `${msg.username} uploaded an image`;
-                            content.style.maxWidth = '100%';
-                        } else if (msg.mimetype.startsWith('video/')) {
-                            content = document.createElement('video');
-                            content.src = `/uploads/${msg.filename}`;
-                            content.controls = true;
-                            content.style.maxWidth = '100%';
-                        } else if (msg.mimetype.startsWith('audio/')) {
-                            content = document.createElement('audio');
-                            content.src = `/uploads/${msg.filename}`;
-                            content.controls = true;
-                            content.style.maxWidth = '100%';
-                        } else {
-                            content = document.createElement('a');
-                            content.href = `/uploads/${msg.filename}`;
-                            content.textContent = `${msg.username} uploaded: ${msg.originalname}`;
-                            content.target = '_blank';
-                        }
-
-                        item.appendChild(content);
-                    }
-
-                    messagesList.appendChild(item);
-                });
-                scrollToBottom();
-            });
-
-            // Handle video chat button click
-            videoChatButton.addEventListener('click', function() {
-                toggleVideoChat();
-            });
-
-            // Function to toggle video chat container visibility
-            function toggleVideoChat() {
-                if (videoChatContainer.style.display === 'none') {
-                    videoChatContainer.style.display = 'block';
-                    startVideoChat();
-                } else {
-                    videoChatContainer.style.display = 'none';
-                    stopVideoChat();
-                }
-            }
-
-            // Function to start video chat
-            async function startVideoChat() {
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    localVideo.srcObject = localStream;
-                    localVideo.muted = true;
-
-                    // Setup WebRTC peer connection
-                    peerConnection = new RTCPeerConnection();
-
-                    // Add local stream to peer connection
-                    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-                    // Handle incoming ice candidates
-                    peerConnection.addEventListener('icecandidate', handleIceCandidate);
-
-                    // Handle incoming streams
-                    peerConnection.addEventListener('track', handleTrack);
-
-                    // Create offer
-                    const offer = await peerConnection.createOffer();
-                    await peerConnection.setLocalDescription(offer);
-
-                    // Send offer to server
-                    socket.emit('offer', offer);
-                } catch (error) {
-                    console.error('Error starting video chat:', error);
-                }
-            }
-
-            // Function to stop video chat
-            function stopVideoChat() {
-                if (peerConnection) {
-                    peerConnection.close();
-                    peerConnection = null;
-                }
-                if (localStream) {
-                    localStream.getTracks().forEach(track => track.stop());
-                    localStream = null;
-                }
-                localVideo.srcObject = null;
-                clearRemoteVideos();
-            }
-
-            // Function to handle incoming ice candidates
-            function handleIceCandidate(event) {
-                if (event.candidate) {
-                    socket.emit('ice candidate', event.candidate);
-                }
-            }
-
-            // Function to handle incoming tracks
-            function handleTrack(event) {
-                const remoteVideo = document.createElement('video');
-                remoteVideo.srcObject = event.streams[0];
-                remoteVideo.autoplay = true;
-                remoteVideo.className = 'remoteVideo';
-                remoteVideosContainer.appendChild(remoteVideo);
-                remoteStreams[event.streams[0].id] = event.streams[0];
-            }
-
-            // Function to clear remote videos
-            function clearRemoteVideos() {
-                remoteVideosContainer.innerHTML = '';
-                remoteStreams = {};
-            }
-
-            // Socket.io listeners
-            socket.on('offer', async (offer) => {
-                if (!peerConnection) {
-                    startVideoChat();
-                }
-                await peerConnection.setRemoteDescription(offer);
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                socket.emit('answer', answer);
-            });
-
-            socket.on('answer', async (answer) => {
-                await peerConnection.setRemoteDescription(answer);
-            });
-
-            socket.on('ice candidate', async (candidate) => {
-                try {
-                    await peerConnection.addIceCandidate(candidate);
-                } catch (error) {
-                    console.error('Error adding ice candidate:', error);
-                }
-            });
-
-            // Function to scroll to the bottom of messages
             function scrollToBottom() {
                 messages.scrollTop = messages.scrollHeight;
             }
 
-            // Handle input container position based on scroll
             window.addEventListener('scroll', function() {
                 const scrolledToBottom = isScrolledToBottom();
                 if (scrolledToBottom) {
@@ -326,12 +160,10 @@
                 }
             });
 
-            // Function to check if scrolled to bottom of messages
             function isScrolledToBottom() {
                 return messages.scrollHeight - messages.clientHeight <= messages.scrollTop + 1;
             }
 
-            // Listen for new notifications
             socket.on('new notification', (notification) => {
                 displayNotification(notification);
             });

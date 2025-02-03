@@ -29,6 +29,9 @@ if (fs.existsSync(usersFilePath)) {
     users = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
 }
 
+const threadsFilePath = path.join(__dirname, 'threads.json');
+let threads = JSON.parse(fs.readFileSync(threadsFilePath, 'utf8')).threads;
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -36,14 +39,28 @@ io.on('connection', (socket) => {
     socket.emit('chat history', chatMessages);
 
     socket.on('chat message', (msg) => {
-        chatMessages.push(msg);
         io.emit('chat message', msg);
+    });
+
+    socket.on('join thread', (data) => {
+        const { username, threadName } = data;
+        const thread = threads.find(t => t.name === threadName);
+
+        if (thread && thread.users.includes(username)) {
+            socket.join(threadName);
+            socket.emit('joined thread', threadName);
+        } else {
+            socket.emit('error', 'You do not have access to this thread');
+        }
+    });
+
+    socket.on('chat message', (data) => {
+        const { threadName, message } = data;
+        io.to(threadName).emit('chat message', message);
     });
 
     socket.on('disconnect', () => {
         console.log('user disconnected');
-        // Remove user from video chat
-        socket.broadcast.emit('user left', socket.id);
     });
 });
 
@@ -83,12 +100,23 @@ app.get('/users', (req, res) => {
 // Endpoint to add a user profile
 app.post('/users', (req, res) => {
     const user = req.body;
+    const existingUser = users.find(u => u.username === user.username);
+
+    if (existingUser) {
+        return res.status(409).send('Username already exists');
+    }
+
     users.push(user);
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
     res.status(201).send('User profile added');
 });
 
+// Endpoint to get threads
+app.get('/threads', (req, res) => {
+    res.json({ threads });
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Listening on *:${PORT}`);
+    console.log(`listening on *:${PORT}`);
 });
