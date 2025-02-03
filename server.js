@@ -32,6 +32,8 @@ if (fs.existsSync(usersFilePath)) {
 const threadsFilePath = path.join(__dirname, 'threads.json');
 let threads = JSON.parse(fs.readFileSync(threadsFilePath, 'utf8')).threads;
 
+let messages = {}; // Store messages for each thread
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -49,6 +51,10 @@ io.on('connection', (socket) => {
 
     socket.on('chat message', (data) => {
         const { threadName, message } = data;
+        if (!messages[threadName]) {
+            messages[threadName] = [];
+        }
+        messages[threadName].push(message);
         io.to(threadName).emit('chat message', message);
     });
 
@@ -107,6 +113,11 @@ app.post('/users', (req, res) => {
 // Endpoint to get threads
 app.get('/threads', (req, res) => {
     res.json({ threads });
+});
+
+app.get('/messages/:threadName', (req, res) => {
+    const threadName = req.params.threadName;
+    res.json({ messages: messages[threadName] || [] });
 });
 
 const PORT = process.env.PORT || 3000;

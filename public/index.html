@@ -102,6 +102,19 @@
                             }
                             li.classList.add('active');
                             activeChannelElement = li;
+
+                            // Fetch messages for the selected thread
+                            fetch(`/messages/${thread.name}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    messagesList.innerHTML = ''; // Clear messages
+                                    data.messages.forEach(msg => {
+                                        const item = document.createElement('li');
+                                        item.textContent = msg;
+                                        messagesList.appendChild(item);
+                                    });
+                                    scrollToBottom();
+                                });
                         });
                         channelList.appendChild(li);
                     });
@@ -109,7 +122,6 @@
 
             socket.on('joined thread', function(threadName) {
                 currentThread = threadName;
-                messagesList.innerHTML = ''; // Clear messages
                 document.title = `Chat App - ${threadName}`; // Update the page title
             });
 
