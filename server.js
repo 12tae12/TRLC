@@ -35,13 +35,6 @@ let threads = JSON.parse(fs.readFileSync(threadsFilePath, 'utf8')).threads;
 io.on('connection', (socket) => {
     console.log('a user connected');
 
-    // Text Chat
-    socket.emit('chat history', chatMessages);
-
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
-    });
-
     socket.on('join thread', (data) => {
         const { username, threadName } = data;
         const thread = threads.find(t => t.name === threadName);

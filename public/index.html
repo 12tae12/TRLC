@@ -11,12 +11,8 @@
     <audio id="messageSound" src="ping.mp3" preload="auto"></audio>
 
     <div id="sidebar">
-        <div id="sidebarHeader">
-            <h2>Channels</h2>
-            <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
-        </div>
         <ul id="channelList">
-            <li id="textChatButton" class="sidebarButton"><i class="fas fa-comment-alt"></i> Text Chat</li>
+            <!-- Channels will be dynamically added here -->
         </ul>
         <div id="sidebarFooter">
             <p>12Tae12 Software. Https://1t2.pages.dev</p>
@@ -38,9 +34,7 @@
         </div>
     </div>
 
-    <select id="threadSelect">
-        <option value="" disabled selected>Select a thread</option>
-    </select>
+
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
     
@@ -102,7 +96,7 @@
                 e.preventDefault();
                 if (messageInput.value.trim() && currentThread) {
                     const msg = messageInput.value.trim();
-                    const formattedMsg = username + ': ' + msg;
+                    const formattedMsg = `${username}: ${msg}`;
                     socket.emit('chat message', { threadName: currentThread, message: formattedMsg });
                     messageInput.value = '';
                 }
