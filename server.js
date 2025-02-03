@@ -13,6 +13,7 @@ const upload = multer({ dest: 'uploads/' });
 
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json());
 
 // Initialize an array to store chat messages
 let chatMessages = [];
@@ -64,18 +65,24 @@ io.on('connection', (socket) => {
 });
 
 app.post('/upload', upload.single('file'), (req, res) => {
+    const { username, threadName } = req.body;
     const file = req.file;
-    const username = req.body.username;
+
+    if (!messages[threadName]) {
+        messages[threadName] = [];
+    }
+
     const fileInfo = {
-        username: username,
+        username,
         originalname: file.originalname,
         filename: file.filename,
         mimetype: file.mimetype,
         path: file.path
     };
-    chatMessages.push(fileInfo);
-    io.emit('file upload', fileInfo);
-    res.send('File uploaded successfully');
+
+    messages[threadName].push(fileInfo);
+    io.to(threadName).emit('file upload', fileInfo);
+    res.status(201).send('File uploaded');
 });
 
 // Endpoint to get notifications
