@@ -86,6 +86,7 @@
             socket.on('joined thread', function(threadName) {
                 currentThread = threadName;
                 messagesList.innerHTML = ''; // Clear messages
+                document.title = `Chat App - ${threadName}`; // Update the page title
             });
 
             socket.on('error', function(errorMessage) {
