@@ -35,6 +35,8 @@ let threads = JSON.parse(fs.readFileSync(threadsFilePath, 'utf8')).threads;
 
 let messages = {}; // Store messages for each thread
 
+// Just so you know, I have trouble coding .js, .css, .json and of course mp3 (lol) so this was work!
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -57,6 +59,7 @@ io.on('connection', (socket) => {
         }
         messages[threadName].push(message);
         io.to(threadName).emit('chat message', message);
+        logMessage(threadName, message);
     });
 
     socket.on('disconnect', () => {
@@ -82,6 +85,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
     messages[threadName].push(fileInfo);
     io.to(threadName).emit('file upload', fileInfo);
+    logMessage(threadName, fileInfo);
     res.status(201).send('File uploaded');
 });
 
@@ -126,6 +130,38 @@ app.get('/messages/:threadName', (req, res) => {
     const threadName = req.params.threadName;
     res.json({ messages: messages[threadName] || [] });
 });
+
+const logMessage = (threadName, message) => {
+    const logFilePath = path.join(__dirname, 'logs', `${threadName}.log`);
+    const logEntry = `${new Date().toISOString()} - ${JSON.stringify(message)}\n`;
+    fs.appendFileSync(logFilePath, logEntry, 'utf8');
+};
+
+const loadMessagesFromLogs = () => {
+    const logDir = path.join(__dirname, 'logs');
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir);
+    }
+
+    fs.readdirSync(logDir).forEach(file => {
+        const threadName = path.basename(file, '.log');
+        const logFilePath = path.join(logDir, file);
+        const logEntries = fs.readFileSync(logFilePath, 'utf8').split('\n').filter(Boolean);
+
+        messages[threadName] = logEntries.map(entry => {
+            try {
+                const [timestamp, message] = entry.split(' - ');
+                return JSON.parse(message);
+            } catch (error) {
+                console.error(`Failed to parse log entry: ${entry}`, error);
+                return null;
+            }
+        }).filter(Boolean); // Remove any null entries
+    });
+};
+
+// Load messages from log files when the server starts
+loadMessagesFromLogs();
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
