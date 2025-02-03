@@ -110,7 +110,34 @@
                                     messagesList.innerHTML = ''; // Clear messages
                                     data.messages.forEach(msg => {
                                         const item = document.createElement('li');
-                                        item.textContent = msg;
+                                        if (typeof msg === 'string') {
+                                            item.textContent = msg;
+                                        } else {
+                                            if (msg.mimetype.startsWith('image/')) {
+                                                const img = document.createElement('img');
+                                                img.src = `/uploads/${msg.filename}`;
+                                                img.alt = `${msg.username} uploaded an image`;
+                                                img.style.maxWidth = '100%';
+                                                item.appendChild(img);
+                                            } else if (msg.mimetype.startsWith('video/')) {
+                                                const video = document.createElement('video');
+                                                video.src = `/uploads/${msg.filename}`;
+                                                video.controls = true;
+                                                video.style.maxWidth = '100%';
+                                                item.appendChild(video);
+                                            } else if (msg.mimetype.startsWith('audio/')) {
+                                                const audio = document.createElement('audio');
+                                                audio.src = `/uploads/${msg.filename}`;
+                                                audio.controls = true;
+                                                item.appendChild(audio);
+                                            } else {
+                                                const link = document.createElement('a');
+                                                link.href = `/uploads/${msg.filename}`;
+                                                link.textContent = `${msg.username} uploaded: ${msg.originalname}`;
+                                                link.target = '_blank';
+                                                item.appendChild(link);
+                                            }
+                                        }
                                         messagesList.appendChild(item);
                                     });
                                     scrollToBottom();
@@ -170,6 +197,37 @@
             socket.on('chat message', function(msg) {
                 const item = document.createElement('li');
                 item.textContent = msg;
+                messagesList.appendChild(item);
+                scrollToBottom();
+                playMessageSound();
+            });
+
+            socket.on('file upload', function(fileInfo) {
+                const item = document.createElement('li');
+                if (fileInfo.mimetype.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = `/uploads/${fileInfo.filename}`;
+                    img.alt = `${fileInfo.username} uploaded an image`;
+                    img.style.maxWidth = '100%';
+                    item.appendChild(img);
+                } else if (fileInfo.mimetype.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    video.src = `/uploads/${fileInfo.filename}`;
+                    video.controls = true;
+                    video.style.maxWidth = '100%';
+                    item.appendChild(video);
+                } else if (fileInfo.mimetype.startsWith('audio/')) {
+                    const audio = document.createElement('audio');
+                    audio.src = `/uploads/${fileInfo.filename}`;
+                    audio.controls = true;
+                    item.appendChild(audio);
+                } else {
+                    const link = document.createElement('a');
+                    link.href = `/uploads/${fileInfo.filename}`;
+                    link.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
+                    link.target = '_blank';
+                    item.appendChild(link);
+                }
                 messagesList.appendChild(item);
                 scrollToBottom();
                 playMessageSound();
