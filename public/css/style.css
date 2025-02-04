@@ -101,15 +101,14 @@ body {
 }
 
 #messageForm button, #fileForm button {
-    padding: 0px;
+    padding: 10px;
     font-size: 16px;
     background-color: #5865f2;
     color: white;
     border: none;
     cursor: pointer;
-    gap: 10px;
-    border-radius: 0px;
-    margin-right: 0%; /* Set the margin to 2% of the parent element's width */
+    border-radius: 5px;
+    margin-right: 10px; /* Set the margin to 10px */
 }
 
 #nameInput, #messageInput, #fileInput {
@@ -120,16 +119,6 @@ body {
     border-radius: 5px;
     background-color: #40444b;
     color: #dcddde;
-}
-
-#messageForm button, #fileForm button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: #5865f2;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
 }
 
 #messageForm button:hover, #fileForm button:hover {
