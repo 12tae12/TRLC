@@ -3,41 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Login - Discord</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #36393f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #dcddde;
+        }
+
+        .form-container {
+            background: #2f3136;
+            width: 480px;
+            padding: 32px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8e9297;
+            text-transform: uppercase;
+        }
+
+        input {
+            padding: 10px;
+            background: #202225;
+            border: 1px solid #040405;
+            border-radius: 3px;
+            color: #dcddde;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: #7289da;
+            outline: none;
+        }
+
+        button {
+            background: #7289da;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: #677bc4;
+        }
+
+        .register-link {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #8e9297;
+        }
+
+        .register-link a {
+            color: #00aff4;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ed4245;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="form-container">
-        <h2>Login</h2>
+        <h2>Welcome back!</h2>
         <form id="loginForm">
-            <input type="text" id="loginUsername" placeholder="Username" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
+            <div class="input-group">
+                <label for="loginUsername">USERNAME</label>
+                <input 
+                    type="text" 
+                    id="loginUsername" 
+                    required
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="32"
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="loginPassword">PASSWORD</label>
+                <input 
+                    type="password" 
+                    id="loginPassword" 
+                    required
+                    autocomplete="current-password"
+                    minlength="8"
+                    maxlength="128"
+                >
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+        <p class="register-link">Need an account? <a href="signup.html">Register</a></p>
     </div>
 
     <script>
+        // Generate CSRF token (should be done server-side in production)
+        const csrfToken = Math.random().toString(36).substring(2, 15) + 
+                         Math.random().toString(36).substring(2, 15);
+        
         document.getElementById('loginForm').addEventListener('submit', async (event) => {
             event.preventDefault();
-            const username = document.getElementById('loginUsername').value;
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.style.display = 'none';
+
+            const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        password,
+                        csrfToken 
+                    })
+                });
 
-            if (response.ok) {
                 const data = await response.json();
-                document.cookie = `username=${data.username}; path=/`;
-                window.location.href = 'index.html';
-            } else {
-                alert('Login failed. Please try again.');
+
+                if (response.ok) {
+                    // Server should set secure cookies
+                    window.location.href = 'index.html';
+                } else {
+                    errorElement.textContent = data.message || 'Login failed. Please try again.';
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'Network error. Please try again.';
+                errorElement.style.display = 'block';
             }
+        });
+
+        // Basic input sanitization
+        document.getElementById('loginUsername').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
         });
     </script>
 </body>
