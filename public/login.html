@@ -1,194 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Discord</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
+      /* General Styles */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background-color: #36393f;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-        body {
-            background: #36393f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #dcddde;
-        }
+      .background {
+        background-color: #2f3136;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 480px;
+      }
 
-        .form-container {
-            background: #2f3136;
-            width: 480px;
-            padding: 32px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
+      .form-container {
+        text-align: center;
+      }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: 600;
-        }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #ffffff;
+      }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+      .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+        color: #b9bbbe;
+        margin-bottom: 5px;
+      }
 
-        label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #8e9297;
-            text-transform: uppercase;
-        }
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #202225;
+        border-radius: 4px;
+        background-color: #202225;
+        color: #ffffff;
+        font-size: 16px;
+        outline: none;
+      }
 
-        input {
-            padding: 10px;
-            background: #202225;
-            border: 1px solid #040405;
-            border-radius: 3px;
-            color: #dcddde;
-            font-size: 16px;
-        }
+      input:focus {
+        border-color: #7289da;
+      }
 
-        input:focus {
-            border-color: #7289da;
-            outline: none;
-        }
+      .submit-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #7289da;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
 
-        button {
-            background: #7289da;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 3px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+      .submit-button:hover {
+        background-color: #677bc4;
+      }
 
-        button:hover {
-            background: #677bc4;
-        }
+      .login-link {
+        font-size: 14px;
+        color: #b9bbbe;
+        margin-top: 10px;
+      }
 
-        .register-link {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #8e9297;
-        }
+      .login-link a {
+        color: #7289da;
+        text-decoration: none;
+      }
 
-        .register-link a {
-            color: #00aff4;
-            text-decoration: none;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            color: #ed4245;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
-        }
+      .login-link a:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
-    <div class="form-container">
-        <h2>Welcome back!</h2>
+  </head>
+  <body>
+    <div class="background">
+      <div class="form-container">
+        <h2>Welcome Back!</h2>
         <form id="loginForm">
-            <div class="input-group">
-                <label for="loginUsername">USERNAME</label>
-                <input 
-                    type="text" 
-                    id="loginUsername" 
-                    required
-                    autocomplete="username"
-                    minlength="3"
-                    maxlength="32"
-                >
-            </div>
-
-            <div class="input-group">
-                <label for="loginPassword">PASSWORD</label>
-                <input 
-                    type="password" 
-                    id="loginPassword" 
-                    required
-                    autocomplete="current-password"
-                    minlength="8"
-                    maxlength="128"
-                >
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-            
-            <button type="submit">Login</button>
+          <div class="input-group">
+            <label for="loginUsername">USERNAME</label>
+            <input
+              type="text"
+              id="loginUsername"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="loginPassword">PASSWORD</label>
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <button type="submit" class="submit-button">Login</button>
         </form>
-        <p class="register-link">Need an account? <a href="signup.html">Register</a></p>
+        <p class="login-link">
+          Don't have an account? <a href="signup.html">Sign up here</a>
+        </p>
+      </div>
     </div>
 
     <script>
-        // Generate CSRF token (should be done server-side in production)
-        const csrfToken = Math.random().toString(36).substring(2, 15) + 
-                         Math.random().toString(36).substring(2, 15);
-        
-        document.getElementById('loginForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.style.display = 'none';
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const username = document.getElementById("loginUsername").value;
+          const password = document.getElementById("loginPassword").value;
 
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
+          const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
 
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify({ 
-                        username, 
-                        password,
-                        csrfToken 
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Server should set secure cookies
-                    window.location.href = 'index.html';
-                } else {
-                    errorElement.textContent = data.message || 'Login failed. Please try again.';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'Network error. Please try again.';
-                errorElement.style.display = 'block';
-            }
-        });
-
-        // Basic input sanitization
-        document.getElementById('loginUsername').addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
+          if (response.ok) {
+            const data = await response.json();
+            document.cookie = `username=${data.username}; path=/`;
+            window.location.href = "index.html";
+          } else {
+            alert("Login failed. Please try again.");
+          }
         });
     </script>
-</body>
+  </body>
 </html>

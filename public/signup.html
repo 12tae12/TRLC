@@ -1,228 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Discord</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
+      /* General Styles */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Whitney", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background-color: #36393f;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-        body {
-            background: #36393f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #dcddde;
-        }
+      .background {
+        background-color: #2f3136;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 480px;
+      }
 
-        .form-container {
-            background: #2f3136;
-            width: 480px;
-            padding: 32px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
+      .form-container {
+        text-align: center;
+      }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: 600;
-        }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #ffffff;
+      }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+      .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+        color: #b9bbbe;
+        margin-bottom: 5px;
+      }
 
-        label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #8e9297;
-            text-transform: uppercase;
-        }
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #202225;
+        border-radius: 4px;
+        background-color: #202225;
+        color: #ffffff;
+        font-size: 16px;
+        outline: none;
+      }
 
-        input {
-            padding: 10px;
-            background: #202225;
-            border: 1px solid #040405;
-            border-radius: 3px;
-            color: #dcddde;
-            font-size: 16px;
-        }
+      input:focus {
+        border-color: #7289da;
+      }
 
-        input:focus {
-            border-color: #7289da;
-            outline: none;
-        }
+      .submit-button {
+        width: 100%;
+        padding: 10px;
+        background-color: #7289da;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
 
-        button {
-            background: #7289da;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 3px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+      .submit-button:hover {
+        background-color: #677bc4;
+      }
 
-        button:hover {
-            background: #677bc4;
-        }
+      .login-link {
+        font-size: 14px;
+        color: #b9bbbe;
+        margin-top: 10px;
+      }
 
-        .login-link {
-            margin-top: 8px;
-            font-size: 14px;
-            color: #8e9297;
-        }
+      .login-link a {
+        color: #7289da;
+        text-decoration: none;
+      }
 
-        .login-link a {
-            color: #00aff4;
-            text-decoration: none;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            color: #ed4245;
-            font-size: 14px;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .password-hint {
-            font-size: 12px;
-            color: #8e9297;
-            margin-top: -8px;
-        }
+      .login-link a:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
-    <div class="form-container">
+  </head>
+  <body>
+    <div class="background">
+      <div class="form-container">
         <h2>Create an Account</h2>
         <form id="signupForm">
-            <div class="input-group">
-                <label for="signupUsername">USERNAME</label>
-                <input 
-                    type="text" 
-                    id="signupUsername" 
-                    required
-                    autocomplete="username"
-                    minlength="3"
-                    maxlength="32"
-                    pattern="[a-zA-Z0-9_]+"
-                >
-            </div>
-
-            <div class="input-group">
-                <label for="signupEmail">EMAIL</label>
-                <input 
-                    type="email" 
-                    id="signupEmail" 
-                    required
-                    autocomplete="email"
-                    maxlength="320"
-                >
-            </div>
-
-            <div class="input-group">
-                <label for="signupPassword">PASSWORD</label>
-                <input 
-                    type="password" 
-                    id="signupPassword" 
-                    required
-                    autocomplete="new-password"
-                    minlength="8"
-                    maxlength="128"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
-                >
-                <div class="password-hint">
-                    Must contain at least 8 characters, including uppercase, lowercase, number, and special character
-                </div>
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-            
-            <button type="submit">Continue</button>
+          <div class="input-group">
+            <label for="signupEmail">EMAIL</label>
+            <input
+              type="email"
+              id="signupEmail"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="signupUsername">USERNAME</label>
+            <input
+              type="text"
+              id="signupUsername"
+              placeholder="Enter a username"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="signupPassword">PASSWORD</label>
+            <input
+              type="password"
+              id="signupPassword"
+              placeholder="Enter a password"
+              required
+            />
+          </div>
+          <button type="submit" class="submit-button">Continue</button>
         </form>
-        <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
+        <p class="login-link">
+          Already have an account? <a href="login.html">Log in</a>
+        </p>
+      </div>
     </div>
 
     <script>
-        // Generate CSRF token (should be done server-side in production)
-        const csrfToken = Math.random().toString(36).substring(2, 15) + 
-                         Math.random().toString(36).substring(2, 15);
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const username = document.getElementById("signupUsername").value;
+          const email = document.getElementById("signupEmail").value;
+          const password = document.getElementById("signupPassword").value;
 
-        // Input sanitization
-        document.getElementById('signupUsername').addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
-        });
+          const response = await fetch("/signup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, email, password }),
+          });
 
-        document.getElementById('signupForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.style.display = 'none';
-
-            const username = document.getElementById('signupUsername').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: JSON.stringify({ 
-                        username,
-                        email,
-                        password,
-                        csrfToken 
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    window.location.href = 'login.html';
-                } else {
-                    errorElement.textContent = data.message || 'Registration failed. Please try again.';
-                    errorElement.style.display = 'block';
-                }
-            } catch (error) {
-                errorElement.textContent = 'Network error. Please try again.';
-                errorElement.style.display = 'block';
-            }
-        });
-
-        // Password strength validation
-        document.getElementById('signupPassword').addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strengthRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-            if (!strengthRegex.test(password)) {
-                e.target.setCustomValidity('Password does not meet requirements');
-            } else {
-                e.target.setCustomValidity('');
-            }
+          if (response.ok) {
+            alert("Sign up successful! Please log in.");
+            window.location.href = "login.html";
+          } else {
+            alert("Sign up failed. Please try again.");
+          }
         });
     </script>
-</body>
+  </body>
 </html>
