@@ -52,8 +52,6 @@
         </div>
     </div>
 
-
-
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
     
     <script>
@@ -71,18 +69,13 @@
             const messageSound = document.getElementById('messageSound');
             const channelList = document.getElementById('channelList');
 
-            let username = localStorage.getItem('username');
+            let username = getCookie('username');
             let currentThread = null;
             let activeChannelElement = null;
 
             if (!username) {
-                const userPrompt = prompt("Enter your desired username:");
-                if (userPrompt && userPrompt.trim() !== '') {
-                    username = userPrompt.trim();
-                    localStorage.setItem('username', username);
-                } else {
-                    username = 'Anonymous';
-                }
+                window.location.href = 'login.html';
+                return;
             }
 
             nameInput.value = username;
@@ -140,7 +133,7 @@
                                         }
                                         messagesList.appendChild(item);
                                     });
-                                    scrollToBottom();
+                                    scrollToBottom(); // Scroll to bottom after loading messages
                                 });
                         });
                         channelList.appendChild(li);
@@ -263,6 +256,9 @@
                     notificationElement.remove();
                 }, 5000);
             }
+
+            // Scroll to bottom on initial load
+            scrollToBottom();
         });
 
         document.getElementById('userProfileForm').addEventListener('submit', async (event) => {
@@ -294,6 +290,12 @@
             const response = await fetch('/users');
             const users = await response.json();
             console.log(users);
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
         }
     </script>
 </body>
