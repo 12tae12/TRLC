@@ -29,7 +29,8 @@ const usersFilePath = './users.json';
 // Load existing users from file
 let users = [];
 if (fs.existsSync(usersFilePath)) {
-    users = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
+    const usersData = fs.readFileSync(usersFilePath);
+    users = JSON.parse(usersData);
 }
 
 const threadsFilePath = path.join(__dirname, 'threads.json');
@@ -173,14 +174,6 @@ app.post('/signup', (req, res) => {
         return res.status(400).send('All fields are required');
     }
 
-    const usersFilePath = path.join(__dirname, 'users.json');
-    let users = [];
-
-    if (fs.existsSync(usersFilePath)) {
-        const usersData = fs.readFileSync(usersFilePath);
-        users = JSON.parse(usersData);
-    }
-
     const userExists = users.some(user => user.username === username || user.email === email);
 
     if (userExists) {
@@ -191,6 +184,21 @@ app.post('/signup', (req, res) => {
     users.push(newUser);
 
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+
+    // Add user to all threads
+    const threadsFilePath = path.join(__dirname, 'threads.json');
+    if (fs.existsSync(threadsFilePath)) {
+        const threadsData = fs.readFileSync(threadsFilePath);
+        const threads = JSON.parse(threadsData);
+
+        threads.threads.forEach(thread => {
+            if (!thread.users.includes(username)) {
+                thread.users.push(username);
+            }
+        });
+
+        fs.writeFileSync(threadsFilePath, JSON.stringify(threads, null, 2));
+    }
 
     res.status(201).send('User registered successfully');
 });
@@ -203,7 +211,6 @@ app.post('/login', (req, res) => {
         return res.status(400).send('All fields are required');
     }
 
-    const usersFilePath = path.join(__dirname, 'users.json');
     if (!fs.existsSync(usersFilePath)) {
         return res.status(400).send('User not found');
     }
