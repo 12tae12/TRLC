@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const bodyParser = require('body-parser');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,6 +12,7 @@ const io = socketIo(server);
 
 const upload = multer({ dest: 'uploads/' });
 
+app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
@@ -162,6 +164,61 @@ const loadMessagesFromLogs = () => {
 
 // Load messages from log files when the server starts
 loadMessagesFromLogs();
+
+// Route to handle signup
+app.post('/signup', (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).send('All fields are required');
+    }
+
+    const usersFilePath = path.join(__dirname, 'users.json');
+    let users = [];
+
+    if (fs.existsSync(usersFilePath)) {
+        const usersData = fs.readFileSync(usersFilePath);
+        users = JSON.parse(usersData);
+    }
+
+    const userExists = users.some(user => user.username === username || user.email === email);
+
+    if (userExists) {
+        return res.status(400).send('User already exists');
+    }
+
+    const newUser = { username, email, password };
+    users.push(newUser);
+
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+
+    res.status(201).send('User registered successfully');
+});
+
+// Route to handle login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).send('All fields are required');
+    }
+
+    const usersFilePath = path.join(__dirname, 'users.json');
+    if (!fs.existsSync(usersFilePath)) {
+        return res.status(400).send('User not found');
+    }
+
+    const usersData = fs.readFileSync(usersFilePath);
+    const users = JSON.parse(usersData);
+
+    const user = users.find(user => user.username === username && user.password === password);
+
+    if (!user) {
+        return res.status(400).send('Invalid username or password');
+    }
+
+    res.status(200).json({ username: user.username });
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
