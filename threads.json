@@ -1,13 +1,14 @@
 {
-    "threads": [
-      {
-        "name": "General",
-        "users": ["Top4eat21", "James W.", "user3"]
-      },
-      {
-        "name": "Humans_space.",
-        "users": ["Top4eat21", "James W.", "dev3"]
-      }
-    ]
-  }
-  
+  "threads": [
+    {
+      "name": "General",
+      "users": [
+        "Top4eat21",
+        "J.",
+        "Trev",
+        "YoFatima",
+        "Brynne Dudas"
+      ]
+    }
+  ]
+}
