@@ -68,18 +68,18 @@
             const fileButton = document.getElementById('fileButton');
             const messageSound = document.getElementById('messageSound');
             const channelList = document.getElementById('channelList');
-
+    
             let username = getCookie('username');
             let currentThread = null;
             let activeChannelElement = null;
-
+    
             if (!username) {
                 window.location.href = 'login.html';
                 return;
             }
-
+    
             nameInput.value = username;
-
+    
             // Fetch available threads
             fetch('/threads')
                 .then(response => response.json())
@@ -95,7 +95,7 @@
                             }
                             li.classList.add('active');
                             activeChannelElement = li;
-
+    
                             // Fetch messages for the selected thread
                             fetch(`/messages/${thread.name}`)
                                 .then(response => response.json())
@@ -139,16 +139,16 @@
                         channelList.appendChild(li);
                     });
                 });
-
+    
             socket.on('joined thread', function(threadName) {
                 currentThread = threadName;
                 document.title = `Chat App - ${threadName}`; // Update the page title
             });
-
+    
             socket.on('error', function(errorMessage) {
                 alert(errorMessage);
             });
-
+    
             messageForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (messageInput.value.trim() && currentThread) {
@@ -158,7 +158,7 @@
                     messageInput.value = '';
                 }
             });
-
+    
             fileForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const file = fileInput.files[0];
@@ -167,7 +167,7 @@
                     formData.append('file', file);
                     formData.append('username', username);
                     formData.append('threadName', currentThread);
-
+    
                     fetch('/upload', {
                         method: 'POST',
                         body: formData
@@ -182,11 +182,11 @@
                     });
                 }
             });
-
+    
             function playMessageSound() {
                 messageSound.play();
             }
-
+    
             socket.on('chat message', function(msg) {
                 const item = document.createElement('li');
                 item.textContent = msg;
@@ -194,7 +194,7 @@
                 scrollToBottom();
                 playMessageSound();
             });
-
+    
             socket.on('file upload', function(fileInfo) {
                 const item = document.createElement('li');
                 if (fileInfo.mimetype.startsWith('image/')) {
@@ -225,11 +225,11 @@
                 scrollToBottom();
                 playMessageSound();
             });
-
+    
             function scrollToBottom() {
                 messages.scrollTop = messages.scrollHeight;
             }
-
+    
             window.addEventListener('scroll', function() {
                 const scrolledToBottom = isScrolledToBottom();
                 if (scrolledToBottom) {
@@ -238,15 +238,15 @@
                     inputContainer.classList.remove('fixed');
                 }
             });
-
+    
             function isScrolledToBottom() {
                 return messages.scrollHeight - messages.clientHeight <= messages.scrollTop + 1;
             }
-
+    
             socket.on('new notification', (notification) => {
                 displayNotification(notification);
             });
-
+    
             function displayNotification(notification) {
                 const notificationElement = document.createElement('div');
                 notificationElement.className = 'notification';
@@ -256,11 +256,11 @@
                     notificationElement.remove();
                 }, 5000);
             }
-
+    
             // Scroll to bottom on initial load
             scrollToBottom();
         });
-
+    
         document.getElementById('userProfileForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -268,7 +268,7 @@
             const email = formData.get('email');
             await addUserProfile(username, email);
         });
-
+    
         async function addUserProfile(username, email) {
             const response = await fetch('/users', {
                 method: 'POST',
@@ -285,13 +285,13 @@
                 alert('Failed to add user profile');
             }
         }
-
+    
         async function getUserProfiles() {
             const response = await fetch('/users');
             const users = await response.json();
             console.log(users);
         }
-
+    
         function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
