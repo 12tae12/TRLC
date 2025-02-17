@@ -1,302 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <style>
-        .sidebarButton {
-            cursor: pointer;
-            padding: 10px;
-            display: block;
-            text-decoration: none;
-            color: black;
-        }
+      .sidebarButton {
+        cursor: pointer;
+        padding: 10px;
+        display: block;
+        text-decoration: none;
+        color: black;
+      }
 
-        .sidebarButton:hover {
-            background-color: #f0f0f0;
-        }
+      .sidebarButton:hover {
+        background-color: #f0f0f0;
+      }
 
-        .sidebarButton.active {
-            background-color: #d0d0d0;
-            font-weight: bold;
-        }
+      .sidebarButton.active {
+        background-color: #d0d0d0;
+        font-weight: bold;
+      }
+      
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <audio id="messageSound" src="ping.mp3" preload="auto"></audio>
 
     <div id="sidebar">
-        <ul id="channelList">
-            <!-- Channels will be dynamically added here -->
-        </ul>
-        <div id="sidebarFooter">
-            <p>12Tae12 Software. Https://1t2.pages.dev</p>
-        </div>
+      <ul id="channelList">
+        <!-- Channels will be dynamically added here -->
+      </ul>
+      <div id="sidebarFooter">
+        <p>12Tae12 Software. Https://1t2.pages.dev</p>
+      </div>
     </div>
 
     <div id="messages">
-        <ul id="messagesList"></ul>
-        <div id="inputContainer">
-            <form id="messageForm">
-                <input type="text" id="nameInput" placeholder="Enter your username" autocomplete="off">
-                <input type="text" id="messageInput" placeholder="Message" autocomplete="off">
-                <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
-            </form>
-            <form id="fileForm" enctype="multipart/form-data">
-                <input type="file" id="fileInput" name="file">
-                <button type="submit" id="fileButton"><i class="fas fa-file-upload"></i> Send File</button>
-            </form>
-        </div>
+      <ul id="messagesList"></ul>
+      <div id="inputContainer">
+        <form id="messageForm">
+          <input
+            type="text"
+            id="nameInput"
+            placeholder="Enter your username"
+            autocomplete="off"
+          />
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Message"
+            autocomplete="off"
+          />
+          <button type="submit"><i class="fas fa-paper-plane"></i> Send</button>
+        </form>
+        <form id="fileForm" enctype="multipart/form-data">
+          <input type="file" id="fileInput" name="file" />
+          <button type="submit" id="fileButton">
+            <i class="fas fa-file-upload"></i> Send File
+          </button>
+        </form>
+      </div>
     </div>
 
     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const socket = io();
-            const messages = document.getElementById('messages');
-            const messagesList = document.getElementById('messagesList');
-            const inputContainer = document.getElementById('inputContainer');
-            const messageForm = document.getElementById('messageForm');
-            const nameInput = document.getElementById('nameInput');
-            const messageInput = document.getElementById('messageInput');
-            const fileForm = document.getElementById('fileForm');
-            const fileInput = document.getElementById('fileInput');
-            const fileButton = document.getElementById('fileButton');
-            const messageSound = document.getElementById('messageSound');
-            const channelList = document.getElementById('channelList');
-    
-            let username = getCookie('username');
-            let currentThread = null;
-            let activeChannelElement = null;
-    
-            if (!username) {
-                window.location.href = 'login.html';
-                return;
-            }
-    
-            nameInput.value = username;
-    
-            // Fetch available threads
-            fetch('/threads')
-                .then(response => response.json())
-                .then(data => {
-                    data.threads.forEach(thread => {
-                        const li = document.createElement('li');
-                        li.className = 'sidebarButton';
-                        li.textContent = thread.name;
-                        li.addEventListener('click', function() {
-                            socket.emit('join thread', { username, threadName: thread.name });
-                            if (activeChannelElement) {
-                                activeChannelElement.classList.remove('active');
-                            }
-                            li.classList.add('active');
-                            activeChannelElement = li;
-    
-                            // Fetch messages for the selected thread
-                            fetch(`/messages/${thread.name}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    messagesList.innerHTML = ''; // Clear messages
-                                    data.messages.forEach(msg => {
-                                        const item = document.createElement('li');
-                                        if (typeof msg === 'string') {
-                                            item.textContent = msg;
-                                        } else {
-                                            if (msg.mimetype.startsWith('image/')) {
-                                                const img = document.createElement('img');
-                                                img.src = `/uploads/${msg.filename}`;
-                                                img.alt = `${msg.username} uploaded an image`;
-                                                img.style.maxWidth = '100%';
-                                                item.appendChild(img);
-                                            } else if (msg.mimetype.startsWith('video/')) {
-                                                const video = document.createElement('video');
-                                                video.src = `/uploads/${msg.filename}`;
-                                                video.controls = true;
-                                                video.style.maxWidth = '100%';
-                                                item.appendChild(video);
-                                            } else if (msg.mimetype.startsWith('audio/')) {
-                                                const audio = document.createElement('audio');
-                                                audio.src = `/uploads/${msg.filename}`;
-                                                audio.controls = true;
-                                                item.appendChild(audio);
-                                            } else {
-                                                const link = document.createElement('a');
-                                                link.href = `/uploads/${msg.filename}`;
-                                                link.textContent = `${msg.username} uploaded: ${msg.originalname}`;
-                                                link.target = '_blank';
-                                                item.appendChild(link);
-                                            }
-                                        }
-                                        messagesList.appendChild(item);
-                                    });
-                                    scrollToBottom(); // Scroll to bottom after loading messages
-                                });
-                        });
-                        channelList.appendChild(li);
-                    });
+      document.addEventListener("DOMContentLoaded", function () {
+        const socket = io();
+        const messages = document.getElementById("messages");
+        const messagesList = document.getElementById("messagesList");
+        const inputContainer = document.getElementById("inputContainer");
+        const messageForm = document.getElementById("messageForm");
+        const nameInput = document.getElementById("nameInput");
+        const messageInput = document.getElementById("messageInput");
+        const fileForm = document.getElementById("fileForm");
+        const fileInput = document.getElementById("fileInput");
+        const fileButton = document.getElementById("fileButton");
+        const messageSound = document.getElementById("messageSound");
+        const channelList = document.getElementById("channelList");
+
+        let username = getCookie("username");
+        let currentThread = null;
+        let activeChannelElement = null;
+
+        if (!username) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        nameInput.value = username;
+
+        // Request notification permission
+        if (Notification.permission !== "granted") {
+          Notification.requestPermission();
+        }
+
+        // Fetch available threads
+        fetch("/threads")
+          .then((response) => response.json())
+          .then((data) => {
+            data.threads.forEach((thread) => {
+              const li = document.createElement("li");
+              li.className = "sidebarButton";
+              li.textContent = thread.name;
+              li.addEventListener("click", function () {
+                socket.emit("join thread", {
+                  username,
+                  threadName: thread.name,
                 });
-    
-            socket.on('joined thread', function(threadName) {
-                currentThread = threadName;
-                document.title = `Chat App - ${threadName}`; // Update the page title
-            });
-    
-            socket.on('error', function(errorMessage) {
-                alert(errorMessage);
-            });
-    
-            messageForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (messageInput.value.trim() && currentThread) {
-                    const msg = messageInput.value.trim();
-                    const formattedMsg = `${username}: ${msg}`;
-                    socket.emit('chat message', { threadName: currentThread, message: formattedMsg });
-                    messageInput.value = '';
+                if (activeChannelElement) {
+                  activeChannelElement.classList.remove("active");
                 }
-            });
-    
-            fileForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const file = fileInput.files[0];
-                if (file && currentThread) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('username', username);
-                    formData.append('threadName', currentThread);
-    
-                    fetch('/upload', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log(data);
-                        fileInput.value = ''; // Clear the file input
-                    })
-                    .catch(error => {
-                        console.error('Error uploading file:', error);
+                li.classList.add("active");
+                activeChannelElement = li;
+
+                // Fetch messages for the selected thread
+                fetch(`/messages/${thread.name}`)
+                  .then((response) => response.json())
+                  .then((data) => {
+                    messagesList.innerHTML = ""; // Clear messages
+                    data.messages.forEach((msg) => {
+                      const item = document.createElement("li");
+                      if (typeof msg === "string") {
+                        item.textContent = msg;
+                      } else {
+                        if (msg.mimetype.startsWith("image/")) {
+                          const img = document.createElement("img");
+                          img.src = `/uploads/${msg.filename}`;
+                          img.alt = `${msg.username} uploaded an image`;
+                          img.style.maxWidth = "100%";
+                          item.appendChild(img);
+                        } else if (msg.mimetype.startsWith("video/")) {
+                          const video = document.createElement("video");
+                          video.src = `/uploads/${msg.filename}`;
+                          video.controls = true;
+                          video.style.maxWidth = "100%";
+                          item.appendChild(video);
+                        } else if (msg.mimetype.startsWith("audio/")) {
+                          const audio = document.createElement("audio");
+                          audio.src = `/uploads/${msg.filename}`;
+                          audio.controls = true;
+                          item.appendChild(audio);
+                        } else {
+                          const link = document.createElement("a");
+                          link.href = `/uploads/${msg.filename}`;
+                          link.textContent = `${msg.username} uploaded: ${msg.originalname}`;
+                          link.target = "_blank";
+                          item.appendChild(link);
+                        }
+                      }
+                      messagesList.appendChild(item);
                     });
-                }
+                    scrollToBottom(); // Scroll to bottom after loading messages
+                  });
+              });
+              channelList.appendChild(li);
             });
-    
-            function playMessageSound() {
-                messageSound.play();
-            }
-    
-            socket.on('chat message', function(msg) {
-                const item = document.createElement('li');
-                item.textContent = msg;
-                messagesList.appendChild(item);
-                scrollToBottom();
-                playMessageSound();
-            });
-    
-            socket.on('file upload', function(fileInfo) {
-                const item = document.createElement('li');
-                if (fileInfo.mimetype.startsWith('image/')) {
-                    const img = document.createElement('img');
-                    img.src = `/uploads/${fileInfo.filename}`;
-                    img.alt = `${fileInfo.username} uploaded an image`;
-                    img.style.maxWidth = '100%';
-                    item.appendChild(img);
-                } else if (fileInfo.mimetype.startsWith('video/')) {
-                    const video = document.createElement('video');
-                    video.src = `/uploads/${fileInfo.filename}`;
-                    video.controls = true;
-                    video.style.maxWidth = '100%';
-                    item.appendChild(video);
-                } else if (fileInfo.mimetype.startsWith('audio/')) {
-                    const audio = document.createElement('audio');
-                    audio.src = `/uploads/${fileInfo.filename}`;
-                    audio.controls = true;
-                    item.appendChild(audio);
-                } else {
-                    const link = document.createElement('a');
-                    link.href = `/uploads/${fileInfo.filename}`;
-                    link.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
-                    link.target = '_blank';
-                    item.appendChild(link);
-                }
-                messagesList.appendChild(item);
-                scrollToBottom();
-                playMessageSound();
-            });
-    
-            function scrollToBottom() {
-                messages.scrollTop = messages.scrollHeight;
-            }
-    
-            window.addEventListener('scroll', function() {
-                const scrolledToBottom = isScrolledToBottom();
-                if (scrolledToBottom) {
-                    inputContainer.classList.add('fixed');
-                } else {
-                    inputContainer.classList.remove('fixed');
-                }
-            });
-    
-            function isScrolledToBottom() {
-                return messages.scrollHeight - messages.clientHeight <= messages.scrollTop + 1;
-            }
-    
-            socket.on('new notification', (notification) => {
-                displayNotification(notification);
-            });
-    
-            function displayNotification(notification) {
-                const notificationElement = document.createElement('div');
-                notificationElement.className = 'notification';
-                notificationElement.innerText = notification.message;
-                document.body.appendChild(notificationElement);
-                setTimeout(() => {
-                    notificationElement.remove();
-                }, 5000);
-            }
-    
-            // Scroll to bottom on initial load
-            scrollToBottom();
+          });
+
+        socket.on("joined thread", function (threadName) {
+          currentThread = threadName;
+          document.title = `Chat App - ${threadName}`; // Update the page title
         });
-    
-        document.getElementById('userProfileForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const username = formData.get('username');
-            const email = formData.get('email');
-            await addUserProfile(username, email);
+
+        socket.on("error", function (errorMessage) {
+          alert(errorMessage);
         });
-    
-        async function addUserProfile(username, email) {
-            const response = await fetch('/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, email })
+
+        messageForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (messageInput.value.trim() && currentThread) {
+            const msg = messageInput.value.trim();
+            const formattedMsg = `${username}: ${msg}`;
+            socket.emit("chat message", {
+              threadName: currentThread,
+              message: formattedMsg,
             });
-            if (response.ok) {
-                document.cookie = `username=${username}; path=/`;
-                document.cookie = `email=${email}; path=/`;
-                alert('User profile added successfully');
-            } else {
-                alert('Failed to add user profile');
-            }
+            messageInput.value = "";
+          }
+        });
+
+        fileForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const file = fileInput.files[0];
+          if (file && currentThread) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("username", username);
+            formData.append("threadName", currentThread);
+
+            fetch("/upload", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => response.text())
+              .then((data) => {
+                console.log(data);
+                fileInput.value = ""; // Clear the file input
+              })
+              .catch((error) => {
+                console.error("Error uploading file:", error);
+              });
+          }
+        });
+
+        function playMessageSound() {
+          messageSound.play();
         }
-    
-        async function getUserProfiles() {
-            const response = await fetch('/users');
-            const users = await response.json();
-            console.log(users);
+
+        function sendNotification(message) {
+          if (Notification.permission === "granted") {
+            new Notification("New Message", {
+              body: message,
+              icon: "icon.png", // Optional: Add an icon for the notification
+            });
+          }
         }
-    
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+
+        socket.on("chat message", function (msg) {
+          const item = document.createElement("li");
+          item.textContent = msg;
+          messagesList.appendChild(item);
+          scrollToBottom();
+          playMessageSound();
+          sendNotification(msg); // Send notification
+        });
+
+        socket.on("file upload", function (fileInfo) {
+          const item = document.createElement("li");
+          if (fileInfo.mimetype.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = `/uploads/${fileInfo.filename}`;
+            img.alt = `${fileInfo.username} uploaded an image`;
+            img.style.maxWidth = "100%";
+            item.appendChild(img);
+          } else if (fileInfo.mimetype.startsWith("video/")) {
+            const video = document.createElement("video");
+            video.src = `/uploads/${fileInfo.filename}`;
+            video.controls = true;
+            video.style.maxWidth = "100%";
+            item.appendChild(video);
+          } else if (fileInfo.mimetype.startsWith("audio/")) {
+            const audio = document.createElement("audio");
+            audio.src = `/uploads/${fileInfo.filename}`;
+            audio.controls = true;
+            item.appendChild(audio);
+          } else {
+            const link = document.createElement("a");
+            link.href = `/uploads/${fileInfo.filename}`;
+            link.textContent = `${fileInfo.username} uploaded: ${fileInfo.originalname}`;
+            link.target = "_blank";
+            item.appendChild(link);
+          }
+          messagesList.appendChild(item);
+          scrollToBottom();
+          playMessageSound();
+          sendNotification(`${fileInfo.username} uploaded a file`); // Send notification
+        });
+
+        function scrollToBottom() {
+          messages.scrollTop = messages.scrollHeight;
         }
+
+        window.addEventListener("scroll", function () {
+          const scrolledToBottom = isScrolledToBottom();
+          if (scrolledToBottom) {
+            inputContainer.classList.add("fixed");
+          } else {
+            inputContainer.classList.remove("fixed");
+          }
+        });
+
+        function isScrolledToBottom() {
+          return (
+            messages.scrollHeight - messages.clientHeight <=
+            messages.scrollTop + 1
+          );
+        }
+
+        socket.on("new notification", (notification) => {
+          displayNotification(notification);
+        });
+
+        function displayNotification(notification) {
+          const notificationElement = document.createElement("div");
+          notificationElement.className = "notification";
+          notificationElement.innerText = notification.message;
+          document.body.appendChild(notificationElement);
+          setTimeout(() => {
+            notificationElement.remove();
+          }, 5000);
+        }
+
+        // Scroll to bottom on initial load
+        scrollToBottom();
+      });
+
+      document
+        .getElementById("userProfileForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const formData = new FormData(event.target);
+          const username = formData.get("username");
+          const email = formData.get("email");
+          await addUserProfile(username, email);
+        });
+
+      async function addUserProfile(username, email) {
+        const response = await fetch("/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, email }),
+        });
+        if (response.ok) {
+          document.cookie = `username=${username}; path=/`;
+          document.cookie = `email=${email}; path=/`;
+          alert("User profile added successfully");
+        } else {
+          alert("Failed to add user profile");
+        }
+      }
+
+      async function getUserProfiles() {
+        const response = await fetch("/users");
+        const users = await response.json();
+        console.log(users);
+      }
+
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
     </script>
-</body>
+  </body>
 </html>
