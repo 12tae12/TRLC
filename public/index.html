@@ -224,8 +224,8 @@
           messageSound.play();
         }
 
-        function sendNotification(message) {
-          if (Notification.permission === "granted") {
+        function sendNotification(message, sender) {
+          if (Notification.permission === "granted" && sender !== username) {
             new Notification("New Message", {
               body: message,
               icon: "icon.png", // Optional: Add an icon for the notification
@@ -239,7 +239,8 @@
           messagesList.appendChild(item);
           scrollToBottom();
           playMessageSound();
-          sendNotification(msg); // Send notification
+          const sender = msg.split(':')[0]; // Extract the sender's username
+          sendNotification(msg, sender); // Send notification
         });
 
         socket.on("file upload", function (fileInfo) {
@@ -271,7 +272,7 @@
           messagesList.appendChild(item);
           scrollToBottom();
           playMessageSound();
-          sendNotification(`${fileInfo.username} uploaded a file`); // Send notification
+          sendNotification(`${fileInfo.username} uploaded a file`, fileInfo.username); // Send notification
         });
 
         function scrollToBottom() {
